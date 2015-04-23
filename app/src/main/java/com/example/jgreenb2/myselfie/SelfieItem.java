@@ -22,7 +22,8 @@ public class SelfieItem {
         this.mPhotoPath = mPhotoPath;
     }
 
-    private Bitmap mThumb = new Bitmap();
+    private Bitmap mThumb = Bitmap.createBitmap(R.dimen.thumb_width, R.dimen.thumb_height,
+                                                Bitmap.Config.ARGB_8888);
 
     public SelfieItem(String mFilename, String mPhotoPath, Bitmap mThumb) {
         this.mFilename = mFilename;

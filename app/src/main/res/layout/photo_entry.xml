@@ -4,8 +4,8 @@
     android:layout_height="wrap_content">
 
     <ImageView
-        android:layout_width="64dp"
-        android:layout_height="64dp"
+        android:layout_width="@dimen/thumb_width"
+        android:layout_height="@dimen/thumb_height"
         android:id="@+id/thumbNail"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"

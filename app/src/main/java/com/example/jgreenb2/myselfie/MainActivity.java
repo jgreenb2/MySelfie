@@ -9,6 +9,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -23,11 +24,18 @@ public class MainActivity extends ActionBarActivity {
     String mCurrentPhotoPath;
     String mCurrentPhotoFileName;
 
+    SelfieListAdapter mSelfieAdapter;
+    private ListView mListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mSelfieAdapter = new SelfieListAdapter(getApplicationContext());
+
+        mListView = (ListView) findViewById(R.id.listView);
+        mListView.setAdapter(mSelfieAdapter);
     }
 
 
@@ -63,7 +71,6 @@ public class MainActivity extends ActionBarActivity {
             String fileName = createImageFileName();
             SelfieItem newSelfie = new SelfieItem(mCurrentPhotoFileName, mCurrentPhotoPath,
                                                           imageBitmap);
-
         }
     }
 
@@ -98,8 +105,7 @@ public class MainActivity extends ActionBarActivity {
     private File createImageFile(String fileName) throws IOException {
         // Create an image file name
 
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
+        File storageDir = getExternalFilesDir(null);
         File image = File.createTempFile(
                 fileName,  /* prefix */
                 ".jpg",         /* suffix */

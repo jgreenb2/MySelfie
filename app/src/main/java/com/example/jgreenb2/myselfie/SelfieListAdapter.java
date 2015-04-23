@@ -89,8 +89,6 @@ public class SelfieListAdapter extends BaseAdapter {
         } else {
             row = convertView;
             holder = (ViewHolder) row.getTag();
-
-            holder.dateView.setText("");
         }
 
         holder.dateView.setText(selfieItem.getmFilename());
