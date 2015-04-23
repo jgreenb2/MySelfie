@@ -1,7 +1,9 @@
 package com.example.jgreenb2.myselfie;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -9,6 +11,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -21,11 +24,11 @@ import java.util.Date;
 public class MainActivity extends ActionBarActivity {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 1;
-    String mCurrentPhotoPath;
-    String mCurrentPhotoFileName;
+    static String mCurrentPhotoPath;
+    static String mCurrentPhotoFileName;
 
-    SelfieListAdapter mSelfieAdapter;
-    private ListView mListView;
+    static SelfieListAdapter mSelfieAdapter;
+    static private ListView mListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +69,11 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            Resources resources = getResources();
+
+            int height = (int) resources.getDimension(R.dimen.thumb_height);
+            int width = (int) resources.getDimension(R.dimen.thumb_width);
+            Bitmap imageBitmap = getPic(height,width,mCurrentPhotoPath);
             String fileName = createImageFileName();
             SelfieItem newSelfie = new SelfieItem(mCurrentPhotoFileName, mCurrentPhotoPath,
                                                           imageBitmap);
@@ -115,5 +121,25 @@ public class MainActivity extends ActionBarActivity {
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();
         return image;
+    }
+
+    private Bitmap getPic(int targetH, int targetW, String src) {
+
+        // Get the dimensions of the bitmap
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(src, bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        // Determine how much to scale down the image
+        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(src, bmOptions);
+        return bitmap;
     }
 }

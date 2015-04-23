@@ -22,13 +22,12 @@ public class SelfieItem {
         this.mPhotoPath = mPhotoPath;
     }
 
-    private Bitmap mThumb = Bitmap.createBitmap(R.dimen.thumb_width, R.dimen.thumb_height,
-                                                Bitmap.Config.ARGB_8888);
+    private Bitmap mThumb;
 
     public SelfieItem(String mFilename, String mPhotoPath, Bitmap mThumb) {
         this.mFilename = mFilename;
         this.mPhotoPath = mPhotoPath;
-        this.mThumb = mThumb;
+        this.mThumb = Bitmap.createBitmap(mThumb);
     }
 
     public String getmFilename() {
