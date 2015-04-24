@@ -18,6 +18,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 
@@ -26,6 +27,7 @@ public class MainActivity extends ActionBarActivity {
     static final int REQUEST_TAKE_PHOTO = 1;
     static String mCurrentPhotoPath;
     static String mCurrentPhotoFileName;
+    static String mStorageDirectory;
 
     static SelfieListAdapter mSelfieAdapter;
     static private ListView mListView;
@@ -77,6 +79,7 @@ public class MainActivity extends ActionBarActivity {
             String fileName = createImageFileName();
             SelfieItem newSelfie = new SelfieItem(mCurrentPhotoFileName, mCurrentPhotoPath,
                                                           imageBitmap);
+            mSelfieAdapter.add(newSelfie);
         }
     }
 
@@ -111,7 +114,8 @@ public class MainActivity extends ActionBarActivity {
     private File createImageFile(String fileName) throws IOException {
         // Create an image file name
 
-        File storageDir = getExternalFilesDir(null);
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        mStorageDirectory = storageDir.getAbsolutePath();
         File image = File.createTempFile(
                 fileName,  /* prefix */
                 ".jpg",         /* suffix */
@@ -119,12 +123,17 @@ public class MainActivity extends ActionBarActivity {
         );
 
         // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
+        mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
 
     private Bitmap getPic(int targetH, int targetW, String src) {
+        File[] files = new File(mStorageDirectory).listFiles();
+        ArrayList<String> names = new ArrayList<String>();
 
+        for (File f : files) {
+            names.add(f.getName());
+        }
         // Get the dimensions of the bitmap
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
         bmOptions.inJustDecodeBounds = true;
