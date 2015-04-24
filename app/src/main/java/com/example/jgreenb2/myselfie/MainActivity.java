@@ -11,6 +11,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -44,8 +45,23 @@ public class MainActivity extends ActionBarActivity {
         mListView.setAdapter(mSelfieAdapter);
 
         // set up an onClickListener
-//        mListView.setClickable(true);
-//        mListView.setOnItemClickListener());
+        mListView.setClickable(true);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                SelfieItem selfieItem = (SelfieItem) mSelfieAdapter.getItem(position);
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.setDataAndType(Uri.parse("file:" + selfieItem.getmPhotoPath()),"image/*");
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(intent);
+                } else {
+                    Toast toast = new Toast(getApplicationContext());
+                    toast.setText("Please install a photo viewer!");
+                    toast.show();
+                }
+            }
+        } );
     }
 
 
