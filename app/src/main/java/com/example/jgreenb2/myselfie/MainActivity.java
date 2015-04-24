@@ -76,7 +76,7 @@ public class MainActivity extends ActionBarActivity {
             int height = (int) resources.getDimension(R.dimen.thumb_height);
             int width = (int) resources.getDimension(R.dimen.thumb_width);
             Bitmap imageBitmap = getPic(height,width,mCurrentPhotoPath);
-            String fileName = createImageFileName();
+
             SelfieItem newSelfie = new SelfieItem(mCurrentPhotoFileName, mCurrentPhotoPath,
                                                           imageBitmap);
             mSelfieAdapter.add(newSelfie);
@@ -128,12 +128,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private Bitmap getPic(int targetH, int targetW, String src) {
-        File[] files = new File(mStorageDirectory).listFiles();
-        ArrayList<String> names = new ArrayList<String>();
 
-        for (File f : files) {
-            names.add(f.getName());
-        }
         // Get the dimensions of the bitmap
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
         bmOptions.inJustDecodeBounds = true;
@@ -150,5 +145,33 @@ public class MainActivity extends ActionBarActivity {
 
         Bitmap bitmap = BitmapFactory.decodeFile(src, bmOptions);
         return bitmap;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // load the pictures if need be
+        if (mSelfieAdapter.getCount()==0) {
+            // find the directory name
+            File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            String storageDirAbsolutePath = storageDir.getAbsolutePath();
+            File[] files = new File(storageDirAbsolutePath).listFiles();
+
+            Resources resources = getResources();
+            int height = (int) resources.getDimension(R.dimen.thumb_height);
+            int width = (int) resources.getDimension(R.dimen.thumb_width);
+            for (File f : files) {
+                String fName = f.getName();
+                Bitmap imageBitmap = getPic(height,width,f.getAbsolutePath());
+                if (null != imageBitmap) {
+                    SelfieItem newSelfie = new SelfieItem(fName, f.getAbsolutePath(),
+                            imageBitmap);
+                    mSelfieAdapter.add(newSelfie);
+                }
+
+            }
+
+        }
     }
 }
