@@ -1,5 +1,8 @@
 package com.example.jgreenb2.myselfie;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -34,10 +37,17 @@ public class MainActivity extends ActionBarActivity {
     static SelfieListAdapter mSelfieAdapter;
     static private ListView mListView;
 
+    private AlarmManager alarmManager;
+    private PendingIntent alarmIntent;
+
+    static private Context mContext;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mContext = getApplicationContext();
 
         mSelfieAdapter = new SelfieListAdapter(getApplicationContext());
 
@@ -62,6 +72,9 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
         } );
+        // set up the annoying alarm
+        alarmManager = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
+        alarmIntent
     }
 
 
