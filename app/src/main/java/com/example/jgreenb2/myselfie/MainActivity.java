@@ -11,6 +11,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -41,6 +42,10 @@ public class MainActivity extends ActionBarActivity {
 
         mListView = (ListView) findViewById(R.id.listView);
         mListView.setAdapter(mSelfieAdapter);
+
+        // set up an onClickListener
+//        mListView.setClickable(true);
+//        mListView.setOnItemClickListener());
     }
 
 
