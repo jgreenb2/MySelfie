@@ -5,4 +5,7 @@
         android:icon="@android:drawable/ic_menu_camera"
         android:title="camera"
         app:showAsAction="always"  />
+    <item android:id="@+id/delete_selfies"
+        android:title="delete all selfies"
+        app:showAsAction="never" />
 </menu>

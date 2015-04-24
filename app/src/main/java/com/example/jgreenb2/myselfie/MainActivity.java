@@ -63,6 +63,15 @@ public class MainActivity extends ActionBarActivity {
             mCurrentPhotoFileName = createImageFileName();
             dispatchTakePictureIntent(mCurrentPhotoFileName);
             return true;
+        } else if (id == R.id.delete_selfies) {
+            File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            String storageDirAbsolutePath = storageDir.getAbsolutePath();
+            File[] files = new File(storageDirAbsolutePath).listFiles();
+            for (File f : files) {
+                f.delete();
+                mSelfieAdapter.clear();
+            }
+
         }
 
         return super.onOptionsItemSelected(item);
