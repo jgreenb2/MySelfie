@@ -17,14 +17,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 
@@ -32,7 +30,7 @@ public class MainActivity extends ActionBarActivity {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 1;
     static String mCurrentPhotoPath;
-    static String mCurrentPhotoFileName;
+    static String mCurrentPhotoLabel;
     static String mStorageDirectory;
 
     static SelfieListAdapter mSelfieAdapter;
@@ -109,8 +107,8 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_selfie) {
-            mCurrentPhotoFileName = createImageFileName();
-            dispatchTakePictureIntent(mCurrentPhotoFileName);
+            mCurrentPhotoLabel = createImageFileName();
+            dispatchTakePictureIntent(mCurrentPhotoLabel);
             return true;
         } else if (id == R.id.delete_selfies) {
             File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
@@ -120,22 +118,16 @@ public class MainActivity extends ActionBarActivity {
                 f.delete();
             }
             mSelfieAdapter.clear();
-            Toast toast = new Toast(mContext);
-            toast.setText("Selfie's Removed!");
-            toast.setDuration(Toast.LENGTH_LONG);
-            toast.show();
+            Toast.makeText(getApplicationContext(), "Selfie's Removed!",
+                    Toast.LENGTH_LONG).show();
         } else if (id == R.id.cancel_alarm) {
             cancelSelfieAlarm();
-            Toast toast = new Toast(mContext);
-            toast.setText("Alarm Cancelled!");
-            toast.setDuration(Toast.LENGTH_LONG);
-            toast.show();
+            Toast.makeText(getApplicationContext(), "Alarms Cancelled!",
+                    Toast.LENGTH_LONG).show();
         } else if (id == R.id.resume_alarm) {
             setSelfieAlarm();
-            Toast toast = new Toast(mContext);
-            toast.setText("Alarms Resumed!");
-            toast.setDuration(Toast.LENGTH_LONG);
-            toast.show();
+            Toast.makeText(getApplicationContext(), "Alarms Resumed!",
+                    Toast.LENGTH_LONG).show();
         }
 
         return super.onOptionsItemSelected(item);
@@ -150,7 +142,7 @@ public class MainActivity extends ActionBarActivity {
             int width = (int) resources.getDimension(R.dimen.thumb_width);
             Bitmap imageBitmap = getPic(height,width,mCurrentPhotoPath);
 
-            SelfieItem newSelfie = new SelfieItem(mCurrentPhotoFileName, mCurrentPhotoPath,
+            SelfieItem newSelfie = new SelfieItem(mCurrentPhotoLabel, mCurrentPhotoPath,
                                                           imageBitmap);
             mSelfieAdapter.add(newSelfie);
         }

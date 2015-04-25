@@ -7,7 +7,7 @@ import android.graphics.Bitmap;
  */
 public class SelfieItem {
 
-    private String mFilename = new String();
+    private String mLabel = new String();
     private String mPhotoPath = new String();
 
     public String getmPhotoPath() {
@@ -20,18 +20,18 @@ public class SelfieItem {
 
     private Bitmap mThumb;
 
-    public SelfieItem(String mFilename, String mPhotoPath, Bitmap mThumb) {
-        this.mFilename = mFilename;
+    public SelfieItem(String mLabel, String mPhotoPath, Bitmap mThumb) {
+        this.mLabel = mLabel;
         this.mPhotoPath = mPhotoPath;
         this.mThumb = Bitmap.createBitmap(mThumb);
     }
 
-    public String getmFilename() {
-        return mFilename;
+    public String getmLabel() {
+        return mLabel;
     }
 
-    public void setmFilename(String mFilename) {
-        this.mFilename = mFilename;
+    public void setmLabel(String mLabel) {
+        this.mLabel = mLabel;
     }
 
     public Bitmap getmThumb() {

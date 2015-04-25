@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -91,7 +90,7 @@ public class SelfieListAdapter extends BaseAdapter {
             holder = (ViewHolder) row.getTag();
         }
 
-        holder.dateView.setText(selfieItem.getmFilename());
+        holder.dateView.setText(selfieItem.getmLabel());
         holder.imageView.setImageBitmap(selfieItem.getmThumb());
 
         return row;
