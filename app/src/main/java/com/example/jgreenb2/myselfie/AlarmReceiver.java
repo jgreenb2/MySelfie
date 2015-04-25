@@ -21,6 +21,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         Notification.Builder nbuild = new Notification.Builder(context);
         Notification selfieNotify = nbuild.setSmallIcon(android.R.drawable.ic_menu_camera)
                 .setTicker("Time for a Selfie!")
+                .setContentTitle("Take a Selfie!")
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
                 .build();
