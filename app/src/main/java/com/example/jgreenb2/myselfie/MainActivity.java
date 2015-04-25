@@ -81,7 +81,7 @@ public class MainActivity extends ActionBarActivity {
 
         // Create an Intent to broadcast to the AlarmReceiver
         mNotificationReceiverIntent = new Intent(MainActivity.this,
-                AlarmReceiver.class);
+                AlarmReceiver.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         // Create an PendingIntent that holds the NotificationReceiverIntent
         mNotificationReceiverPendingIntent = PendingIntent.getBroadcast(
