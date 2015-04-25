@@ -234,15 +234,13 @@ public class MainActivity extends ActionBarActivity {
                             imageBitmap);
                     mSelfieAdapter.add(newSelfie);
                 }
-
             }
-
         }
     }
 
     public void setSelfieAlarm() {
         // Set repeating alarm
-        mAlarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME,
+        mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
                 SystemClock.elapsedRealtime() + INITIAL_ALARM_DELAY,
                 SELFIE_INTERVAL,
                 mNotificationReceiverPendingIntent);
