@@ -6,12 +6,16 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.RingtoneManager;
+import android.net.Uri;
 
 /**
  * Created by jgreenb2 on 4/25/15.
  */
 public class AlarmReceiver extends BroadcastReceiver {
     private final int MY_NOTIFICATION_ID = 1;
+    private final Uri soundURI = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -24,6 +28,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 .setContentTitle("Take a Selfie!")
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
+                .setSound(soundURI)
                 .build();
 
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

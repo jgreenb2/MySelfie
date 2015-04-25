@@ -118,12 +118,24 @@ public class MainActivity extends ActionBarActivity {
             File[] files = new File(storageDirAbsolutePath).listFiles();
             for (File f : files) {
                 f.delete();
-                mSelfieAdapter.clear();
             }
+            mSelfieAdapter.clear();
+            Toast toast = new Toast(mContext);
+            toast.setText("Selfie's Removed!");
+            toast.setDuration(Toast.LENGTH_LONG);
+            toast.show();
         } else if (id == R.id.cancel_alarm) {
             cancelSelfieAlarm();
+            Toast toast = new Toast(mContext);
+            toast.setText("Alarm Cancelled!");
+            toast.setDuration(Toast.LENGTH_LONG);
+            toast.show();
         } else if (id == R.id.resume_alarm) {
             setSelfieAlarm();
+            Toast toast = new Toast(mContext);
+            toast.setText("Alarms Resumed!");
+            toast.setDuration(Toast.LENGTH_LONG);
+            toast.show();
         }
 
         return super.onOptionsItemSelected(item);
