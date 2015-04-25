@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -37,8 +38,12 @@ public class MainActivity extends ActionBarActivity {
     static SelfieListAdapter mSelfieAdapter;
     static private ListView mListView;
 
-    private AlarmManager alarmManager;
-    private PendingIntent alarmIntent;
+    static private AlarmManager mAlarmManager;
+    static private Intent mNotificationReceiverIntent;
+    static private PendingIntent mNotificationReceiverPendingIntent;
+
+    private static final long INITIAL_ALARM_DELAY = 10 * 1000L;
+    private static final long SELFIE_INTERVAL = 2 * 60 * 1000L;
 
     static private Context mContext;
 
@@ -49,7 +54,7 @@ public class MainActivity extends ActionBarActivity {
 
         mContext = getApplicationContext();
 
-        mSelfieAdapter = new SelfieListAdapter(getApplicationContext());
+        mSelfieAdapter = new SelfieListAdapter(MainActivity.this);
 
         mListView = (ListView) findViewById(R.id.listView);
         mListView.setAdapter(mSelfieAdapter);
@@ -73,8 +78,18 @@ public class MainActivity extends ActionBarActivity {
             }
         } );
         // set up the annoying alarm
-        alarmManager = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
-        alarmIntent
+        // Get the AlarmManager Service
+        mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        // Create an Intent to broadcast to the AlarmReceiver
+        mNotificationReceiverIntent = new Intent(MainActivity.this,
+                AlarmReceiver.class);
+
+        // Create an PendingIntent that holds the NotificationReceiverIntent
+        mNotificationReceiverPendingIntent = PendingIntent.getBroadcast(
+                MainActivity.this, 0, mNotificationReceiverIntent, 0);
+
+        setSelfieAlarm();
     }
 
 
@@ -105,7 +120,10 @@ public class MainActivity extends ActionBarActivity {
                 f.delete();
                 mSelfieAdapter.clear();
             }
-
+        } else if (id == R.id.cancel_alarm) {
+            cancelSelfieAlarm();
+        } else if (id == R.id.resume_alarm) {
+            setSelfieAlarm();
         }
 
         return super.onOptionsItemSelected(item);
@@ -216,5 +234,17 @@ public class MainActivity extends ActionBarActivity {
             }
 
         }
+    }
+
+    public void setSelfieAlarm() {
+        // Set repeating alarm
+        mAlarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME,
+                SystemClock.elapsedRealtime() + INITIAL_ALARM_DELAY,
+                SELFIE_INTERVAL,
+                mNotificationReceiverPendingIntent);
+    }
+
+    public void cancelSelfieAlarm() {
+        mAlarmManager.cancel(mNotificationReceiverPendingIntent);
     }
 }
