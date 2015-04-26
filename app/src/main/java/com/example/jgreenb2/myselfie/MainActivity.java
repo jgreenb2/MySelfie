@@ -13,6 +13,7 @@ import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,14 +32,16 @@ public class MainActivity extends ActionBarActivity {
     static final int REQUEST_TAKE_PHOTO = 1;
     static String mCurrentPhotoPath;
     static String mCurrentPhotoLabel;
-    static String mStorageDirectory;
+
 
     static SelfieListAdapter mSelfieAdapter;
     static private ListView mListView;
     static private AlarmReceiver mAlarmReceiver;
 
     static private Context mContext;
+    static final private String TAG="Selfie_app";
 
+    static private int mThumbHeight, mThumbWidth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +72,11 @@ public class MainActivity extends ActionBarActivity {
             }
         } );
 
+        Resources resources = getResources();
+
+        mThumbHeight = (int) resources.getDimension(R.dimen.thumb_height);
+        mThumbWidth = (int) resources.getDimension(R.dimen.thumb_width);
+
         mAlarmReceiver = new AlarmReceiver(MainActivity.this);
 
         mAlarmReceiver.setSelfieAlarm();
@@ -92,6 +100,7 @@ public class MainActivity extends ActionBarActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_selfie) {
             mCurrentPhotoLabel = createImageFileName();
+            Log.i(TAG, "label=|" + mCurrentPhotoLabel + "|");
             dispatchTakePictureIntent(mCurrentPhotoLabel);
             return true;
         } else if (id == R.id.delete_selfies) {
@@ -120,15 +129,14 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Resources resources = getResources();
 
-            int height = (int) resources.getDimension(R.dimen.thumb_height);
-            int width = (int) resources.getDimension(R.dimen.thumb_width);
-            Bitmap imageBitmap = getPic(height,width,mCurrentPhotoPath);
+            //Bitmap imageBitmap = getPic(height,width,mCurrentPhotoPath);
 
             SelfieItem newSelfie = new SelfieItem(mCurrentPhotoLabel, mCurrentPhotoPath,
-                                                          imageBitmap);
+                                                          mThumbHeight,mThumbWidth);
             mSelfieAdapter.add(newSelfie);
+            // restart the alarms
+            mAlarmReceiver.setSelfieAlarm();
         }
     }
 
@@ -150,6 +158,8 @@ public class MainActivity extends ActionBarActivity {
             if (photoFile != null) {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
                         Uri.fromFile(photoFile));
+                // stop the alarms and restart after the Selfie has been taken
+                mAlarmReceiver.cancelSelfieAlarm();
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
         }
@@ -164,7 +174,7 @@ public class MainActivity extends ActionBarActivity {
         // Create an image file name
 
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        mStorageDirectory = storageDir.getAbsolutePath();
+
         File image = File.createTempFile(
                 fileName,  /* prefix */
                 ".jpg",         /* suffix */
@@ -176,25 +186,6 @@ public class MainActivity extends ActionBarActivity {
         return image;
     }
 
-    private Bitmap getPic(int targetH, int targetW, String src) {
-
-        // Get the dimensions of the bitmap
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(src, bmOptions);
-        int photoW = bmOptions.outWidth;
-        int photoH = bmOptions.outHeight;
-
-        // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
-
-        // Decode the image file into a Bitmap sized to fill the View
-        bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
-
-        Bitmap bitmap = BitmapFactory.decodeFile(src, bmOptions);
-        return bitmap;
-    }
 
     @Override
     protected void onResume() {
@@ -212,12 +203,11 @@ public class MainActivity extends ActionBarActivity {
             int width = (int) resources.getDimension(R.dimen.thumb_width);
             for (File f : files) {
                 String fName = f.getName();
-                Bitmap imageBitmap = getPic(height,width,f.getAbsolutePath());
-                if (null != imageBitmap) {
-                    SelfieItem newSelfie = new SelfieItem(fName, f.getAbsolutePath(),
-                            imageBitmap);
-                    mSelfieAdapter.add(newSelfie);
-                }
+
+                SelfieItem newSelfie = new SelfieItem(fName, f.getAbsolutePath(),
+                        mThumbHeight,mThumbWidth);
+                mSelfieAdapter.add(newSelfie);
+
             }
         }
     }
