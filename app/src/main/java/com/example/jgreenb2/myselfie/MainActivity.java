@@ -35,13 +35,7 @@ public class MainActivity extends ActionBarActivity {
 
     static SelfieListAdapter mSelfieAdapter;
     static private ListView mListView;
-
-    static private AlarmManager mAlarmManager;
-    static private Intent mNotificationReceiverIntent;
-    static private PendingIntent mNotificationReceiverPendingIntent;
-
-    private static final long INITIAL_ALARM_DELAY = 10 * 1000L;
-    private static final long SELFIE_INTERVAL = 2 * 60 * 1000L;
+    static private AlarmReceiver mAlarmReceiver;
 
     static private Context mContext;
 
@@ -69,25 +63,15 @@ public class MainActivity extends ActionBarActivity {
                 if (intent.resolveActivity(getPackageManager()) != null) {
                     startActivity(intent);
                 } else {
-                    Toast toast = new Toast(getApplicationContext());
-                    toast.setText("Please install a photo viewer!");
-                    toast.show();
+                    Toast.makeText(getApplicationContext(), "Please install a photo viewer!!",
+                            Toast.LENGTH_LONG).show();
                 }
             }
         } );
-        // set up the annoying alarm
-        // Get the AlarmManager Service
-        mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
-        // Create an Intent to broadcast to the AlarmReceiver
-        mNotificationReceiverIntent = new Intent(MainActivity.this,
-                AlarmReceiver.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        mAlarmReceiver = new AlarmReceiver(MainActivity.this);
 
-        // Create an PendingIntent that holds the NotificationReceiverIntent
-        mNotificationReceiverPendingIntent = PendingIntent.getBroadcast(
-                MainActivity.this, 0, mNotificationReceiverIntent, 0);
-
-        setSelfieAlarm();
+        mAlarmReceiver.setSelfieAlarm();
     }
 
 
@@ -121,11 +105,11 @@ public class MainActivity extends ActionBarActivity {
             Toast.makeText(getApplicationContext(), "Selfie's Removed!",
                     Toast.LENGTH_LONG).show();
         } else if (id == R.id.cancel_alarm) {
-            cancelSelfieAlarm();
+            mAlarmReceiver.cancelSelfieAlarm();
             Toast.makeText(getApplicationContext(), "Alarms Cancelled!",
                     Toast.LENGTH_LONG).show();
         } else if (id == R.id.resume_alarm) {
-            setSelfieAlarm();
+            mAlarmReceiver.setSelfieAlarm();
             Toast.makeText(getApplicationContext(), "Alarms Resumed!",
                     Toast.LENGTH_LONG).show();
         }
@@ -238,15 +222,5 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    public void setSelfieAlarm() {
-        // Set repeating alarm
-        mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
-                SystemClock.elapsedRealtime() + INITIAL_ALARM_DELAY,
-                SELFIE_INTERVAL,
-                mNotificationReceiverPendingIntent);
-    }
 
-    public void cancelSelfieAlarm() {
-        mAlarmManager.cancel(mNotificationReceiverPendingIntent);
-    }
 }

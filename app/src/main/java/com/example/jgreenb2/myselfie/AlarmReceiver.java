@@ -1,5 +1,6 @@
 package com.example.jgreenb2.myselfie;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -8,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.SystemClock;
 
 /**
  * Created by jgreenb2 on 4/25/15.
@@ -15,7 +17,37 @@ import android.net.Uri;
 public class AlarmReceiver extends BroadcastReceiver {
     private final int MY_NOTIFICATION_ID = 1;
     private final Uri soundURI = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+    static private AlarmManager mAlarmManager;
+    static private Intent mNotificationReceiverIntent;
+    static private PendingIntent mNotificationReceiverPendingIntent;
 
+    private static final long INITIAL_ALARM_DELAY = 10 * 1000L;
+    private static final long SELFIE_INTERVAL = 2 * 60 * 1000L;
+
+    private static Context mActivityContext;
+
+    public AlarmReceiver(Context activityContext) {
+        mActivityContext = activityContext;
+
+        // set up the annoying alarm
+        // Get the AlarmManager Service
+        mAlarmManager = (AlarmManager) activityContext.getSystemService(Context.ALARM_SERVICE);
+
+        // Create an Intent to broadcast to the AlarmReceiver
+        mNotificationReceiverIntent = new Intent(activityContext,
+                AlarmReceiver.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|
+                Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        // Create an PendingIntent that holds the NotificationReceiverIntent
+        mNotificationReceiverPendingIntent = PendingIntent.getBroadcast(
+                activityContext, 0, mNotificationReceiverIntent, 0);
+
+    }
+
+    // we need an empty constructor to receive events
+    public AlarmReceiver() {
+        super();
+    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -34,5 +66,15 @@ public class AlarmReceiver extends BroadcastReceiver {
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         nm.notify(MY_NOTIFICATION_ID,selfieNotify);
     }
+    public void setSelfieAlarm() {
+        // Set repeating alarm
+        mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
+                SystemClock.elapsedRealtime() + INITIAL_ALARM_DELAY,
+                SELFIE_INTERVAL,
+                mNotificationReceiverPendingIntent);
+    }
 
+    public void cancelSelfieAlarm() {
+        mAlarmManager.cancel(mNotificationReceiverPendingIntent);
+    }
 }
