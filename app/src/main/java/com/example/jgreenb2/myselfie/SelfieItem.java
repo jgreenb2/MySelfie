@@ -1,8 +1,14 @@
 package com.example.jgreenb2.myselfie;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Environment;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
@@ -16,6 +22,9 @@ public class SelfieItem {
 
     private String mLabel = new String();
     private String mPhotoPath = new String();
+
+    static private final String THUMB_DIR = "thumbs";
+    private final int QUALITY=75;
 
     public String getmPhotoPath() {
         return mPhotoPath;
@@ -37,7 +46,7 @@ public class SelfieItem {
         mLabel = readableDate.format(date);
         mPhotoPath = photoPath;
 
-        Bitmap thumb = getPic(thumbHeight,thumbWidth,photoPath);
+        Bitmap thumb = getThumb(thumbHeight, thumbWidth, photoPath);
         mThumb = Bitmap.createBitmap(thumb);
     }
 
@@ -58,23 +67,80 @@ public class SelfieItem {
     }
 
 
-    private Bitmap getPic(int targetH, int targetW, String src) {
+    private Bitmap getThumb(int targetH, int targetW, String src) {
 
-        // Get the dimensions of the bitmap
+        // construct the thumbNail path
+        int i = src.lastIndexOf('/');
+        String pathName = src.substring(0, i);
+        String fileName = src.substring(i + 1);
+        String thumbDirName = pathName+"/../"+ THUMB_DIR;
+
+        // create thumbDir if it doesn't exist
+        File thumbDir = new File(thumbDirName);
+        if (!(thumbDir.exists() && thumbDir.isDirectory())) {
+            thumbDir.mkdir();
+        }
+
+        // if the thumbnail already exists just read it in
+        String thumbName = thumbDirName+"/"+fileName;
+        File thumbNail = new File(thumbName);
+        Bitmap thumb;
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(src, bmOptions);
-        int photoW = bmOptions.outWidth;
-        int photoH = bmOptions.outHeight;
-
-        // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
-
-        // Decode the image file into a Bitmap sized to fill the View
         bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
 
-        Bitmap bitmap = BitmapFactory.decodeFile(src, bmOptions);
-        return bitmap;
+        if (thumbNail.exists()) {
+            thumb=BitmapFactory.decodeFile(thumbName, bmOptions);
+        } else {
+            // if the thumb doesn't exist we have to create it
+
+            // Get the dimensions of the bitmap
+            bmOptions.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(src, bmOptions);
+            int photoW = bmOptions.outWidth;
+            int photoH = bmOptions.outHeight;
+
+            // Determine how much to scale down the image
+            int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
+
+            // Decode the image file into a Bitmap sized to fill the View
+            bmOptions.inJustDecodeBounds = false;
+            bmOptions.inSampleSize = scaleFactor;
+
+            thumb = BitmapFactory.decodeFile(src, bmOptions);
+
+            // save thumb to the thumbNail directory
+
+            try {
+                FileOutputStream fos = new FileOutputStream(thumbNail);
+                thumb.compress(Bitmap.CompressFormat.JPEG,QUALITY,fos);
+                fos.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return thumb;
+    }
+    // static method for removing all the selfies
+    static public void removeSelfies(Context context) {
+
+        // delete the image files
+        File storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        String storageDirAbsolutePath = storageDir.getAbsolutePath();
+        String thumbPath = storageDirAbsolutePath+"/../"+THUMB_DIR;
+        File[] files = new File(storageDirAbsolutePath).listFiles();
+
+        for (File f : files) {
+            f.delete();
+        }
+        // now delete the thumbNails
+        File thumbDir= new File(thumbPath);
+        files = thumbDir.listFiles();
+        for (File f : files) {
+            f.delete();
+        }
+        thumbDir.delete();
+
     }
 }

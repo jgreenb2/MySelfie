@@ -104,12 +104,7 @@ public class MainActivity extends ActionBarActivity {
             dispatchTakePictureIntent(mCurrentPhotoLabel);
             return true;
         } else if (id == R.id.delete_selfies) {
-            File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-            String storageDirAbsolutePath = storageDir.getAbsolutePath();
-            File[] files = new File(storageDirAbsolutePath).listFiles();
-            for (File f : files) {
-                f.delete();
-            }
+            SelfieItem.removeSelfies(mContext);
             mSelfieAdapter.clear();
             Toast.makeText(getApplicationContext(), "Selfie's Removed!",
                     Toast.LENGTH_LONG).show();
@@ -128,15 +123,19 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE) {
+            if (resultCode == RESULT_OK) {
 
-            //Bitmap imageBitmap = getPic(height,width,mCurrentPhotoPath);
-
-            SelfieItem newSelfie = new SelfieItem(mCurrentPhotoLabel, mCurrentPhotoPath,
-                                                          mThumbHeight,mThumbWidth);
-            mSelfieAdapter.add(newSelfie);
-            // restart the alarms
-            mAlarmReceiver.setSelfieAlarm();
+                SelfieItem newSelfie = new SelfieItem(mCurrentPhotoLabel, mCurrentPhotoPath,
+                        mThumbHeight, mThumbWidth);
+                mSelfieAdapter.add(newSelfie);
+                // restart the alarms
+                mAlarmReceiver.setSelfieAlarm();
+            } else {
+                // remove the file
+                File staleFile = new File(mCurrentPhotoPath);
+                staleFile.delete();
+            }
         }
     }
 
