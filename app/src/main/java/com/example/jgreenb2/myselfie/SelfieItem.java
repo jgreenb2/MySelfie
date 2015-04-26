@@ -86,9 +86,10 @@ public class SelfieItem {
         File thumbNail = new File(thumbName);
         Bitmap thumb;
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = false;
+
 
         if (thumbNail.exists()) {
+            bmOptions.inJustDecodeBounds = false;
             thumb=BitmapFactory.decodeFile(thumbName, bmOptions);
         } else {
             // if the thumb doesn't exist we have to create it
