@@ -33,9 +33,11 @@ public class AlarmReceiver extends BroadcastReceiver {
         mAlarmManager = (AlarmManager) activityContext.getSystemService(Context.ALARM_SERVICE);
 
         // Create an Intent to broadcast to the AlarmReceiver
+//        mNotificationReceiverIntent = new Intent(activityContext,
+//                AlarmReceiver.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|
+//                Intent.FLAG_ACTIVITY_NEW_TASK);
         mNotificationReceiverIntent = new Intent(activityContext,
-                AlarmReceiver.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|
-                Intent.FLAG_ACTIVITY_NEW_TASK);
+                AlarmReceiver.class).addFlags(0);
 
         // Create an PendingIntent that holds the NotificationReceiverIntent
         mNotificationReceiverPendingIntent = PendingIntent.getBroadcast(
