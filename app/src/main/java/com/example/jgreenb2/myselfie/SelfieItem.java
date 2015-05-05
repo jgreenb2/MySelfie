@@ -47,7 +47,11 @@ public class SelfieItem {
         mPhotoPath = photoPath;
 
         Bitmap thumb = newThumb(thumbHeight, thumbWidth, photoPath);
-        mThumb = Bitmap.createBitmap(thumb);
+        if (thumb != null) {
+            mThumb = Bitmap.createBitmap(thumb);
+        } else {
+            mThumb = null;
+        }
     }
 
     public String getLabel() {
@@ -82,6 +86,11 @@ public class SelfieItem {
         if (thumbNail.exists()) {
             bmOptions.inJustDecodeBounds = false;
             thumb=BitmapFactory.decodeFile(thumbName, bmOptions);
+            if (thumb==null) {
+                // if the thumbNail is corrupt delete it and try to recreate it
+                thumbNail.delete();
+                return newThumb(targetH,targetW,src);
+            }
         } else {
             // if the thumb doesn't exist we have to create it
 
@@ -99,17 +108,24 @@ public class SelfieItem {
             bmOptions.inSampleSize = scaleFactor;
 
             thumb = BitmapFactory.decodeFile(src, bmOptions);
+            if (thumb!=null) {
+                // save thumb to the thumbNail directory
 
-            // save thumb to the thumbNail directory
-
-            try {
-                FileOutputStream fos = new FileOutputStream(thumbNail);
-                thumb.compress(Bitmap.CompressFormat.JPEG,QUALITY,fos);
-                fos.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+                try {
+                    FileOutputStream fos = new FileOutputStream(thumbNail);
+                    thumb.compress(Bitmap.CompressFormat.JPEG, QUALITY, fos);
+                    fos.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                // if the thumb can't be created -- perhaps because the image file
+                // is corrupt, delete both the image file and thumb then return null
+                thumbNail.delete();
+                File srcFile = new File(src);
+                srcFile.delete();
             }
         }
         return thumb;

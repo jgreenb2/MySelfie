@@ -128,10 +128,12 @@ public class MainActivity extends ActionBarActivity {
 
                 SelfieItem newSelfie = new SelfieItem(mCurrentPhotoLabel, mCurrentPhotoPath,
                         mThumbHeight, mThumbWidth);
-                mSelfieAdapter.add(newSelfie);
-                // restart the alarms
-                if (mAlarmReceiver.areAlarmsEnabled()) {
-                    mAlarmReceiver.setSelfieAlarm();
+                if (newSelfie.getThumb() != null) {
+                    mSelfieAdapter.add(newSelfie);
+                    // restart the alarms
+                    if (mAlarmReceiver.areAlarmsEnabled()) {
+                        mAlarmReceiver.setSelfieAlarm();
+                    }
                 }
             } else {
                 // remove the file
@@ -199,15 +201,14 @@ public class MainActivity extends ActionBarActivity {
             String storageDirAbsolutePath = storageDir.getAbsolutePath();
             File[] files = new File(storageDirAbsolutePath).listFiles();
 
-            Resources resources = getResources();
-            int height = (int) resources.getDimension(R.dimen.thumb_height);
-            int width = (int) resources.getDimension(R.dimen.thumb_width);
             for (File f : files) {
                 String fName = f.getName();
 
                 SelfieItem newSelfie = new SelfieItem(fName, f.getAbsolutePath(),
                                                       mThumbHeight,mThumbWidth);
-                mSelfieAdapter.add(newSelfie);
+                if (newSelfie.getThumb() != null) {
+                    mSelfieAdapter.add(newSelfie);
+                }
             }
         }
     }
