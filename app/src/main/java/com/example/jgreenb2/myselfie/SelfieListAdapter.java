@@ -90,8 +90,8 @@ public class SelfieListAdapter extends BaseAdapter {
             holder = (ViewHolder) row.getTag();
         }
 
-        holder.dateView.setText(selfieItem.getmLabel());
-        holder.imageView.setImageBitmap(selfieItem.getmThumb());
+        holder.dateView.setText(selfieItem.getLabel());
+        holder.imageView.setImageBitmap(selfieItem.getThumb());
 
         return row;
     }

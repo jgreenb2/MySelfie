@@ -130,7 +130,9 @@ public class MainActivity extends ActionBarActivity {
                         mThumbHeight, mThumbWidth);
                 mSelfieAdapter.add(newSelfie);
                 // restart the alarms
-                mAlarmReceiver.setSelfieAlarm();
+                if (mAlarmReceiver.areAlarmsEnabled()) {
+                    mAlarmReceiver.setSelfieAlarm();
+                }
             } else {
                 // remove the file
                 File staleFile = new File(mCurrentPhotoPath);
@@ -204,9 +206,8 @@ public class MainActivity extends ActionBarActivity {
                 String fName = f.getName();
 
                 SelfieItem newSelfie = new SelfieItem(fName, f.getAbsolutePath(),
-                        mThumbHeight,mThumbWidth);
+                                                      mThumbHeight,mThumbWidth);
                 mSelfieAdapter.add(newSelfie);
-
             }
         }
     }

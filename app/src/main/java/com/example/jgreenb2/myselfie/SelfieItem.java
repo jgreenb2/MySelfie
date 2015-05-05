@@ -46,28 +46,19 @@ public class SelfieItem {
         mLabel = readableDate.format(date);
         mPhotoPath = photoPath;
 
-        Bitmap thumb = getThumb(thumbHeight, thumbWidth, photoPath);
+        Bitmap thumb = newThumb(thumbHeight, thumbWidth, photoPath);
         mThumb = Bitmap.createBitmap(thumb);
     }
 
-    public String getmLabel() {
+    public String getLabel() {
         return mLabel;
     }
 
-    public void setmLabel(String mLabel) {
-        this.mLabel = mLabel;
-    }
-
-    public Bitmap getmThumb() {
+    public Bitmap getThumb() {
         return mThumb;
     }
 
-    public void setmThumb(Bitmap mThumb) {
-        this.mThumb = mThumb;
-    }
-
-
-    private Bitmap getThumb(int targetH, int targetW, String src) {
+    private Bitmap newThumb(int targetH, int targetW, String src) {
 
         // construct the thumbNail path
         int i = src.lastIndexOf('/');

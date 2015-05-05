@@ -21,6 +21,13 @@ public class AlarmReceiver extends BroadcastReceiver {
     static private Intent mNotificationReceiverIntent;
     static private PendingIntent mNotificationReceiverPendingIntent;
 
+    public boolean areAlarmsEnabled() {
+        return mAlarmsEnabled;
+    }
+
+
+    private boolean mAlarmsEnabled=true;
+
     private static final long SELFIE_INTERVAL = 2 * 60 * 1000L;
 
     private static Context mActivityContext;
@@ -73,9 +80,11 @@ public class AlarmReceiver extends BroadcastReceiver {
                 SystemClock.elapsedRealtime() + SELFIE_INTERVAL,
                 SELFIE_INTERVAL,
                 mNotificationReceiverPendingIntent);
+        mAlarmsEnabled=true;
     }
 
     public void cancelSelfieAlarm() {
         mAlarmManager.cancel(mNotificationReceiverPendingIntent);
+        mAlarmsEnabled=false;
     }
 }
