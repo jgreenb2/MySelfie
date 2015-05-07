@@ -1,5 +1,7 @@
 package com.example.jgreenb2.myselfie;
-
+/*
+    5/7/15 -- adding contextual action bar
+ */
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
