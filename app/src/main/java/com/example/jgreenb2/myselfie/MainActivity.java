@@ -1,15 +1,10 @@
 package com.example.jgreenb2.myselfie;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
-import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -62,7 +57,7 @@ public class MainActivity extends ActionBarActivity {
                 SelfieItem selfieItem = (SelfieItem) mSelfieAdapter.getItem(position);
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.parse("file:" + selfieItem.getmPhotoPath()),"image/*");
+                intent.setDataAndType(Uri.parse("file:" + selfieItem.getPhotoPath()),"image/*");
                 if (intent.resolveActivity(getPackageManager()) != null) {
                     startActivity(intent);
                 } else {

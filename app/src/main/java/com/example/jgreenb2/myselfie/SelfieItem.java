@@ -26,12 +26,8 @@ public class SelfieItem {
     static private final String THUMB_DIR = "thumbs";
     private final int QUALITY=75;
 
-    public String getmPhotoPath() {
+    public String getPhotoPath() {
         return mPhotoPath;
-    }
-
-    public void setmPhotoPath(String mPhotoPath) {
-        this.mPhotoPath = mPhotoPath;
     }
 
     private Bitmap mThumb;
