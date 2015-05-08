@@ -16,10 +16,14 @@ import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -57,6 +61,7 @@ public class MainActivity extends ActionBarActivity {
         mListView.setAdapter(mSelfieAdapter);
 
         // set up an onClickListener
+        // a short click just opens a viewer for the image
         mListView.setClickable(true);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -64,7 +69,7 @@ public class MainActivity extends ActionBarActivity {
                 SelfieItem selfieItem = (SelfieItem) mSelfieAdapter.getItem(position);
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.parse("file:" + selfieItem.getmPhotoPath()),"image/*");
+                intent.setDataAndType(Uri.parse("file:" + selfieItem.getmPhotoPath()), "image/*");
                 if (intent.resolveActivity(getPackageManager()) != null) {
                     startActivity(intent);
                 } else {
@@ -72,7 +77,63 @@ public class MainActivity extends ActionBarActivity {
                             Toast.LENGTH_LONG).show();
                 }
             }
-        } );
+        });
+        mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        mListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+                SelfieItem selfieItem = (SelfieItem) mSelfieAdapter.getItem(position);
+                View view = getViewFromPosition(mListView, position);
+                ImageView imageView = (ImageView) view.findViewById(R.id.thumbNail);
+                if (checked) {
+                    Bitmap checkMark = BitmapFactory.decodeResource(getResources(), R.drawable.checkmark);
+                    imageView.setImageBitmap(checkMark);
+                    //mSelfieAdapter.setNewSelection(position,checked);
+                } else {
+                    imageView.setImageBitmap(selfieItem.getThumb());
+                    //mSelfieAdapter.removeSelection(position);
+                }
+                mSelfieAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                MenuInflater menuInflater = mode.getMenuInflater();
+                menuInflater.inflate(R.menu.cab_menu, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.cab_delete:
+                        Toast.makeText(mContext,"deleting selection",Toast.LENGTH_LONG).show();
+                        mode.finish();
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+
+            }
+        });
+
+//        mListView.setLongClickable(true);
+//        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+//            @Override
+//            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+//                mListView.setItemChecked(position, !mSelfieAdapter.isPositionChecked(position));
+//                return false;
+//            }
+//        });
 
         Resources resources = getResources();
 
@@ -215,5 +276,10 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    View getViewFromPosition(ListView listView,int position) {
+        int firstVisiblePosition = listView.getFirstVisiblePosition();
+        int viewPosition = position - firstVisiblePosition;
+        return listView.getChildAt(viewPosition);
 
+    }
 }

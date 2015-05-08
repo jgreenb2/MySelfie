@@ -9,7 +9,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by jgreenb2 on 4/23/15.
@@ -17,6 +19,7 @@ import java.util.List;
 public class SelfieListAdapter extends BaseAdapter {
     private final Context mContext;
     private final List<SelfieItem> mItems = new ArrayList<>();
+    private HashMap<Integer, Boolean> mSelection = new HashMap<Integer, Boolean>();
 
     public SelfieListAdapter(Context context) {
         mContext = context;
@@ -99,5 +102,24 @@ public class SelfieListAdapter extends BaseAdapter {
     private static class ViewHolder {
         public ImageView imageView;
         public TextView dateView;
+    }
+
+    public void setNewSelection(int position, boolean value) {
+        mSelection.put(position, value);
+        notifyDataSetChanged();
+    }
+
+    public Set<Integer> getCurrentCheckPosition() {
+        return mSelection.keySet();
+    }
+
+    public boolean isPositionChecked(int position) {
+        Boolean result = mSelection.get(position);
+        return result == null ? false: result;
+    }
+
+    public void removeSelection(int position) {
+        mSelection.remove(position);
+        notifyDataSetChanged();
     }
 }
