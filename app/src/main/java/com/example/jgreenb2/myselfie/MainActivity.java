@@ -2,16 +2,11 @@ package com.example.jgreenb2.myselfie;
 /*
     5/7/15 -- adding contextual action bar
  */
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
-import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -23,7 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -31,6 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.Set;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -69,7 +65,7 @@ public class MainActivity extends ActionBarActivity {
                 SelfieItem selfieItem = (SelfieItem) mSelfieAdapter.getItem(position);
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.parse("file:" + selfieItem.getmPhotoPath()), "image/*");
+                intent.setDataAndType(Uri.parse("file:" + selfieItem.getPhotoPath()), "image/*");
                 if (intent.resolveActivity(getPackageManager()) != null) {
                     startActivity(intent);
                 } else {
@@ -82,18 +78,12 @@ public class MainActivity extends ActionBarActivity {
         mListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
             @Override
             public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-                SelfieItem selfieItem = (SelfieItem) mSelfieAdapter.getItem(position);
-                View view = getViewFromPosition(mListView, position);
-                ImageView imageView = (ImageView) view.findViewById(R.id.thumbNail);
                 if (checked) {
-                    Bitmap checkMark = BitmapFactory.decodeResource(getResources(), R.drawable.checkmark);
-                    imageView.setImageBitmap(checkMark);
-                    //mSelfieAdapter.setNewSelection(position,checked);
+                    mSelfieAdapter.addItemToSelectionSet(position, checked);
                 } else {
-                    imageView.setImageBitmap(selfieItem.getThumb());
-                    //mSelfieAdapter.removeSelection(position);
+                    mSelfieAdapter.removeItemFromSelectionSet(position);
                 }
-                mSelfieAdapter.notifyDataSetChanged();
+                mode.setTitle(Integer.toString(mSelfieAdapter.getNumberOfCheckedPositions()));
             }
 
             @Override
@@ -122,18 +112,10 @@ public class MainActivity extends ActionBarActivity {
 
             @Override
             public void onDestroyActionMode(ActionMode mode) {
-
+                // uncheck all
+                mSelfieAdapter.removeAllFromSelectionSet();
             }
         });
-
-//        mListView.setLongClickable(true);
-//        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
-//            @Override
-//            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-//                mListView.setItemChecked(position, !mSelfieAdapter.isPositionChecked(position));
-//                return false;
-//            }
-//        });
 
         Resources resources = getResources();
 
@@ -276,6 +258,8 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    // turns out we don't actually need this function but keep it here for
+    // future reference
     View getViewFromPosition(ListView listView,int position) {
         int firstVisiblePosition = listView.getFirstVisiblePosition();
         int viewPosition = position - firstVisiblePosition;

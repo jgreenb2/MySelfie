@@ -1,6 +1,8 @@
 package com.example.jgreenb2.myselfie;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +22,11 @@ public class SelfieListAdapter extends BaseAdapter {
     private final Context mContext;
     private final List<SelfieItem> mItems = new ArrayList<>();
     private HashMap<Integer, Boolean> mSelection = new HashMap<Integer, Boolean>();
+    private Bitmap mCheckMark;
 
     public SelfieListAdapter(Context context) {
         mContext = context;
+        mCheckMark = BitmapFactory.decodeResource(context.getResources(), R.drawable.checkmark);
     }
 
     // Clears the list adapter of all items.
@@ -94,8 +98,12 @@ public class SelfieListAdapter extends BaseAdapter {
         }
 
         holder.dateView.setText(selfieItem.getLabel());
-        holder.imageView.setImageBitmap(selfieItem.getThumb());
-
+        if (isPositionChecked(position)) {
+            holder.imageView.setImageBitmap(mCheckMark);
+        } else {
+            holder.imageView.setImageBitmap(selfieItem.getThumb());
+        }
+        holder.imageView.invalidate();
         return row;
     }
 
@@ -104,13 +112,21 @@ public class SelfieListAdapter extends BaseAdapter {
         public TextView dateView;
     }
 
-    public void setNewSelection(int position, boolean value) {
+    public void addItemToSelectionSet(int position, boolean value) {
         mSelection.put(position, value);
         notifyDataSetChanged();
     }
 
-    public Set<Integer> getCurrentCheckPosition() {
+    public Set<Integer> getCurrentCheckPositions() {
         return mSelection.keySet();
+    }
+
+    public int getNumberOfCheckedPositions() {
+        int nCheck=0;
+        for (int i : getCurrentCheckPositions()) {
+            if (isPositionChecked(i)) nCheck++;
+        }
+        return nCheck;
     }
 
     public boolean isPositionChecked(int position) {
@@ -118,8 +134,13 @@ public class SelfieListAdapter extends BaseAdapter {
         return result == null ? false: result;
     }
 
-    public void removeSelection(int position) {
+    public void removeItemFromSelectionSet(int position) {
         mSelection.remove(position);
+        notifyDataSetChanged();
+    }
+
+    public void removeAllFromSelectionSet() {
+        mSelection.clear();
         notifyDataSetChanged();
     }
 }
