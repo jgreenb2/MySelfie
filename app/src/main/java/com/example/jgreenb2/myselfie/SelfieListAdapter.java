@@ -91,6 +91,9 @@ public class SelfieListAdapter extends BaseAdapter {
             holder = new ViewHolder();
             holder.dateView = (TextView) row.findViewById(R.id.photoDate);
             holder.imageView = (ImageView) row.findViewById(R.id.thumbNail);
+            holder.checkMarkView = (ImageView) row.findViewById(R.id.checkMark);
+            holder.thumbRoot = (View) row.findViewById(R.id.thumbNailRoot);
+            holder.flipAnimation = new FlipAnimation(holder.imageView, holder.checkMarkView);
 
             row.setTag(holder);
         } else {
@@ -99,18 +102,29 @@ public class SelfieListAdapter extends BaseAdapter {
         }
 
         holder.dateView.setText(selfieItem.getLabel());
-        if (isPositionChecked(position)) {
-            holder.imageView.setImageBitmap(mCheckMark);
-        } else {
-            holder.imageView.setImageBitmap(selfieItem.getThumb());
+        holder.checkMarkView.setImageBitmap(mCheckMark);
+        holder.imageView.setImageBitmap(selfieItem.getThumb());
+
+        if (isPositionChecked(position) && !selfieItem.isChecked()) {
+            holder.thumbRoot.startAnimation(holder.flipAnimation);
+            selfieItem.setChecked(true);
+        } else if (!isPositionChecked(position) && selfieItem.isChecked()) {
+            holder.flipAnimation.reverse();
+            holder.thumbRoot.startAnimation(holder.flipAnimation);
+            selfieItem.setChecked(false);
         }
-        holder.imageView.invalidate();
+
+
+
         return row;
     }
 
     private static class ViewHolder {
         public ImageView imageView;
+        public ImageView checkMarkView;
         public TextView dateView;
+        public View thumbRoot;
+        public FlipAnimation flipAnimation;
     }
 
     public void addItemToSelectionSet(int position) {

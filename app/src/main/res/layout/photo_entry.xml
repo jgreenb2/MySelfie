@@ -1,19 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent">
 
-    <ImageView
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/thumbNailRoot"
         android:layout_width="@dimen/thumb_width"
         android:layout_height="@dimen/thumb_height"
-        android:id="@+id/thumbNail"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
         android:layout_marginStart="44dp"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp" />
+        android:layout_marginBottom="10dp"
+        android:background="@android:color/transparent" >
+
+        <ImageView
+            android:layout_height="fill_parent"
+            android:layout_width="fill_parent"
+            android:id="@+id/thumbNail" />
+        <ImageView
+            android:layout_height="fill_parent"
+            android:layout_width="match_parent"
+            android:id="@+id/checkMark"
+            android:background="@drawable/checkmark" />
+    </RelativeLayout>
 
     <TextView
         android:layout_width="wrap_content"
@@ -21,10 +35,10 @@
         android:text="New Text"
         android:id="@+id/photoDate"
         android:layout_alignParentTop="false"
-        android:layout_toEndOf="@+id/thumbNail"
+        android:layout_toEndOf="@+id/thumbNailRoot"
         android:gravity="center_vertical|center_horizontal"
         android:textSize="36sp"
-        android:layout_toRightOf="@+id/thumbNail"
+        android:layout_toRightOf="@+id/thumbNailRoot"
         android:layout_centerInParent="true"
         android:layout_marginLeft="10dp" />
 </RelativeLayout>
