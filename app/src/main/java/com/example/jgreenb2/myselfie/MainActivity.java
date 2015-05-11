@@ -79,7 +79,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
                 if (checked) {
-                    mSelfieAdapter.addItemToSelectionSet(position, checked);
+                    mSelfieAdapter.addItemToSelectionSet(position);
                 } else {
                     mSelfieAdapter.removeItemFromSelectionSet(position);
                 }

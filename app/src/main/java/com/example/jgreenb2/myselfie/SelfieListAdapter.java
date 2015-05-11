@@ -3,6 +3,7 @@ package com.example.jgreenb2.myselfie;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,7 @@ import java.util.Set;
 public class SelfieListAdapter extends BaseAdapter {
     private final Context mContext;
     private final List<SelfieItem> mItems = new ArrayList<>();
-    private HashMap<Integer, Boolean> mSelection = new HashMap<Integer, Boolean>();
+    private SparseBooleanArray mSelection = new SparseBooleanArray();
     private Bitmap mCheckMark;
 
     public SelfieListAdapter(Context context) {
@@ -112,30 +113,26 @@ public class SelfieListAdapter extends BaseAdapter {
         public TextView dateView;
     }
 
-    public void addItemToSelectionSet(int position, boolean value) {
-        mSelection.put(position, value);
+    public void addItemToSelectionSet(int position) {
+        mSelection.put(position, true);
         notifyDataSetChanged();
-    }
-
-    public Set<Integer> getCurrentCheckPositions() {
-        return mSelection.keySet();
     }
 
     public int getNumberOfCheckedPositions() {
         int nCheck=0;
-        for (int i : getCurrentCheckPositions()) {
-            if (isPositionChecked(i)) nCheck++;
+        for (int i=0;i<mSelection.size();i++) {
+            if (mSelection.valueAt(i)) nCheck++;
         }
         return nCheck;
     }
 
     public boolean isPositionChecked(int position) {
         Boolean result = mSelection.get(position);
-        return result == null ? false: result;
+        return result;
     }
 
     public void removeItemFromSelectionSet(int position) {
-        mSelection.remove(position);
+        mSelection.delete(position);
         notifyDataSetChanged();
     }
 
