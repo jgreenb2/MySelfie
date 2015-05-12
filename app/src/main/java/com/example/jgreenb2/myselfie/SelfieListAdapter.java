@@ -8,6 +8,7 @@ import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,6 +24,7 @@ import java.util.Set;
 public class SelfieListAdapter extends BaseAdapter {
     private final Context mContext;
     private final List<SelfieItem> mItems = new ArrayList<>();
+    private SelfieItem mCurrentAnimatedSelfie;
 
     public SelfieListAdapter(Context context) {
         mContext = context;
@@ -98,13 +100,37 @@ public class SelfieListAdapter extends BaseAdapter {
 
         holder.dateView.setText(selfieItem.getLabel());
         holder.imageView.setImageBitmap(selfieItem.getThumb());
+        mCurrentAnimatedSelfie = selfieItem;
 
-        FlipAnimation flipAnimation = new FlipAnimation(holder.imageView, holder.checkMarkView);
-        if (isPositionChecked(position) && holder.imageView.getVisibility()==View.VISIBLE) {
-            holder.thumbRoot.startAnimation(flipAnimation);
-        } else if (!isPositionChecked(position) && holder.imageView.getVisibility()==View.GONE) {
-            flipAnimation.reverse();
-            holder.thumbRoot.startAnimation(flipAnimation);
+
+
+        if (selfieItem.isInTransition()) {
+            FlipAnimation flipAnimation = new FlipAnimation(holder.imageView, holder.checkMarkView);
+
+            flipAnimation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                    mCurrentAnimatedSelfie.setInTransition(false);
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+
+                    mCurrentAnimatedSelfie.setChecked(!mCurrentAnimatedSelfie.isChecked());
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+
+            if (selfieItem.isChecked()) {
+                flipAnimation.reverse();
+                holder.thumbRoot.startAnimation(flipAnimation);
+            } else {
+                holder.thumbRoot.startAnimation(flipAnimation);
+            }
         }
 
         return row;
@@ -145,6 +171,12 @@ public class SelfieListAdapter extends BaseAdapter {
         for (int i=0;i<getCount();i++) {
             ((SelfieItem) getItem(i)).setChecked(false);
         }
+        notifyDataSetChanged();
+    }
+
+    public void requestCheckmarkThumbTransition(int position) {
+        SelfieItem selfieItem = (SelfieItem) getItem(position);
+        selfieItem.setInTransition(true);
         notifyDataSetChanged();
     }
 }

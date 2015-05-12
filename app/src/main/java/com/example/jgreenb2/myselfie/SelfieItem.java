@@ -24,6 +24,9 @@ public class SelfieItem {
     private String mPhotoPath = new String();
     private boolean mIsChecked;
 
+
+    private boolean mInTransition;
+
     static private final String THUMB_DIR = "thumbs";
     private final int QUALITY=75;
 
@@ -36,6 +39,14 @@ public class SelfieItem {
     }
 
     private Bitmap mThumb;
+
+    public boolean isInTransition() {
+        return mInTransition;
+    }
+
+    public void setInTransition(boolean mInTransition) {
+        this.mInTransition = mInTransition;
+    }
 
     public boolean isChecked() {
         return mIsChecked;

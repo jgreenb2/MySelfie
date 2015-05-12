@@ -78,11 +78,8 @@ public class MainActivity extends ActionBarActivity {
         mListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
             @Override
             public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-                if (checked) {
-                    mSelfieAdapter.addItemToSelectionSet(position);
-                } else {
-                    mSelfieAdapter.removeItemFromSelectionSet(position);
-                }
+
+                mSelfieAdapter.requestCheckmarkThumbTransition(position);
                 mode.setTitle(Integer.toString(mSelfieAdapter.getNumberOfCheckedPositions()));
             }
 
