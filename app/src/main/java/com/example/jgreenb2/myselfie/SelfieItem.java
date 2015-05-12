@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
+import android.view.animation.Animation;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,10 +26,35 @@ public class SelfieItem {
     private boolean mIsChecked;
 
 
-    private boolean mInTransition;
+    private FlipAnimation mAnimation;
+
+    enum transitionState {
+        SCHEDULED,
+        INPROGRESS,
+        UNSCHEDULED
+    }
+
+
+    private transitionState mAnimationTransitionState;
 
     static private final String THUMB_DIR = "thumbs";
     private final int QUALITY=75;
+
+    public FlipAnimation getAnimation() {
+        return mAnimation;
+    }
+
+    public void setAnimation(FlipAnimation mAnimation) {
+        this.mAnimation = mAnimation;
+    }
+
+    public transitionState getAnimationTransitionState() {
+        return mAnimationTransitionState;
+    }
+
+    public void setAnimationTransitionState(transitionState mAnimationTransitionState) {
+        this.mAnimationTransitionState = mAnimationTransitionState;
+    }
 
     public String getPhotoPath() {
         return mPhotoPath;
@@ -39,14 +65,6 @@ public class SelfieItem {
     }
 
     private Bitmap mThumb;
-
-    public boolean isInTransition() {
-        return mInTransition;
-    }
-
-    public void setInTransition(boolean mInTransition) {
-        this.mInTransition = mInTransition;
-    }
 
     public boolean isChecked() {
         return mIsChecked;
@@ -73,6 +91,7 @@ public class SelfieItem {
             mThumb = null;
         }
         mIsChecked = false;
+        setAnimationTransitionState(transitionState.UNSCHEDULED);
     }
 
     public String getLabel() {

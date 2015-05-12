@@ -78,7 +78,7 @@ public class MainActivity extends ActionBarActivity {
         mListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
             @Override
             public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-
+                Log.i(TAG, "StateChange! pos=" + position + " checked=" + checked);
                 mSelfieAdapter.requestCheckmarkThumbTransition(position);
                 mode.setTitle(Integer.toString(mSelfieAdapter.getNumberOfCheckedPositions()));
             }
@@ -101,6 +101,13 @@ public class MainActivity extends ActionBarActivity {
                     case R.id.cab_delete:
                         Toast.makeText(mContext,"deleting selection",Toast.LENGTH_LONG).show();
                         mode.finish();
+                        return true;
+                    case R.id.cab_show_selfies:
+                        mSelfieAdapter.logSelfies();
+                        return true;
+                    case R.id.cab_show_adapter:
+                        Log.i(TAG,"first visible pos="+mListView.getFirstVisiblePosition());
+                        Log.i(TAG,"last visible pos=" + mListView.getLastVisiblePosition());
                         return true;
                     default:
                         return false;

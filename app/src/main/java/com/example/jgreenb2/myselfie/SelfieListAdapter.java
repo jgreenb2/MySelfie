@@ -24,7 +24,6 @@ import java.util.Set;
 public class SelfieListAdapter extends BaseAdapter {
     private final Context mContext;
     private final List<SelfieItem> mItems = new ArrayList<>();
-    private SelfieItem mCurrentAnimatedSelfie;
 
     public SelfieListAdapter(Context context) {
         mContext = context;
@@ -79,6 +78,9 @@ public class SelfieListAdapter extends BaseAdapter {
         ViewHolder holder;
 
         final SelfieItem selfieItem = (SelfieItem) getItem(position);
+        if (selfieItem.getAnimationTransitionState()== SelfieItem.transitionState.INPROGRESS) {
+            Log.i(MainActivity.TAG, "getView while animation INPROGRESS! pos=" + position);
+        }
 
         if (convertView==null) {
             LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -91,32 +93,37 @@ public class SelfieListAdapter extends BaseAdapter {
             holder.thumbRoot = (View) row.findViewById(R.id.thumbNailRoot);
 
             row.setTag(holder);
-            Log.i(MainActivity.TAG,"new view, pos="+position);
+            Log.i(MainActivity.TAG,"new view, pos="+position+" checked="+selfieItem.isChecked()
+                                  +" label="+selfieItem.getLabel());
         } else {
             row = convertView;
             holder = (ViewHolder) row.getTag();
-            Log.i(MainActivity.TAG, "reusing view, pos="+position);
+            Log.i(MainActivity.TAG, "reusing view, pos="+position+" checked="+selfieItem.isChecked()
+                                   +" label="+selfieItem.getLabel());
         }
 
         holder.dateView.setText(selfieItem.getLabel());
         holder.imageView.setImageBitmap(selfieItem.getThumb());
-        mCurrentAnimatedSelfie = selfieItem;
 
 
-
-        if (selfieItem.isInTransition()) {
-            FlipAnimation flipAnimation = new FlipAnimation(holder.imageView, holder.checkMarkView);
-
-            flipAnimation.setAnimationListener(new Animation.AnimationListener() {
+        if (selfieItem.getAnimationTransitionState()== SelfieItem.transitionState.SCHEDULED) {
+            selfieItem.setAnimation(new FlipAnimation(holder.imageView,holder.checkMarkView));
+            selfieItem.getAnimation().setTag(selfieItem);
+            selfieItem.getAnimation().setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {
-                    mCurrentAnimatedSelfie.setInTransition(false);
+//                    FlipAnimation flipAnimation = (FlipAnimation) animation;
+//                    SelfieItem curSelfieItem = (SelfieItem) flipAnimation.getTag();
+//                    curSelfieItem.setAnimationTransitionState(SelfieItem.transitionState.INPROGRESS);
                 }
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
+                    FlipAnimation flipAnimation = (FlipAnimation) animation;
+                    SelfieItem curSelfieItem = (SelfieItem) flipAnimation.getTag();
+                    curSelfieItem.setAnimationTransitionState(SelfieItem.transitionState.UNSCHEDULED);
+                    curSelfieItem.setChecked(!curSelfieItem.isChecked());
 
-                    mCurrentAnimatedSelfie.setChecked(!mCurrentAnimatedSelfie.isChecked());
                 }
 
                 @Override
@@ -125,11 +132,20 @@ public class SelfieListAdapter extends BaseAdapter {
                 }
             });
 
+            selfieItem.setAnimationTransitionState(SelfieItem.transitionState.INPROGRESS);
             if (selfieItem.isChecked()) {
-                flipAnimation.reverse();
-                holder.thumbRoot.startAnimation(flipAnimation);
+                selfieItem.getAnimation().reverse();
+                holder.thumbRoot.startAnimation(selfieItem.getAnimation());
             } else {
-                holder.thumbRoot.startAnimation(flipAnimation);
+                holder.thumbRoot.startAnimation(selfieItem.getAnimation());
+            }
+        } else if (selfieItem.getAnimationTransitionState()== SelfieItem.transitionState.UNSCHEDULED) {
+            if (selfieItem.isChecked()) {
+                holder.imageView.setVisibility(View.GONE);
+                holder.checkMarkView.setVisibility(View.VISIBLE);
+            } else {
+                holder.imageView.setVisibility(View.VISIBLE);
+                holder.checkMarkView.setVisibility(View.GONE);
             }
         }
 
@@ -176,7 +192,16 @@ public class SelfieListAdapter extends BaseAdapter {
 
     public void requestCheckmarkThumbTransition(int position) {
         SelfieItem selfieItem = (SelfieItem) getItem(position);
-        selfieItem.setInTransition(true);
+        selfieItem.setAnimationTransitionState(SelfieItem.transitionState.SCHEDULED);
         notifyDataSetChanged();
+    }
+
+    public void logSelfies() {
+        SelfieItem selfieItem;
+        for (int i=0;i<getCount();i++) {
+            selfieItem = (SelfieItem) getItem(i);
+            Log.i(MainActivity.TAG, "reusing view, index="+i+" checked="+selfieItem.isChecked()
+                    +" label="+selfieItem.getLabel());
+        }
     }
 }

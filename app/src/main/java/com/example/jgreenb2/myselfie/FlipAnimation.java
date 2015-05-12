@@ -24,6 +24,8 @@ public class FlipAnimation extends Animation {
 
     private boolean forward = true;
 
+    private Object tag;
+
     /**
      * Creates a 3D flip animation between two views.
      *
@@ -81,5 +83,13 @@ public class FlipAnimation extends Animation {
         camera.restore();
         matrix.preTranslate(-centerX, -centerY);
         matrix.postTranslate(centerX, centerY);
+    }
+
+    public Object getTag() {
+        return tag;
+    }
+
+    public void setTag(Object tag) {
+        this.tag = tag;
     }
 }
