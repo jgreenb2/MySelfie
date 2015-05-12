@@ -92,7 +92,7 @@ public class SelfieListAdapter extends BaseAdapter {
             holder.imageView = (ImageView) row.findViewById(R.id.thumbNail);
             holder.checkMarkView = (ImageView) row.findViewById(R.id.checkMark);
             holder.thumbRoot = (View) row.findViewById(R.id.thumbNailRoot);
-            holder.flipAnimation = new FlipAnimation(holder.imageView, holder.checkMarkView);
+            //holder.flipAnimation = new FlipAnimation(holder.imageView, holder.checkMarkView);
 
             row.setTag(holder);
             Log.i(MainActivity.TAG,"new view, pos="+position);
@@ -105,12 +105,12 @@ public class SelfieListAdapter extends BaseAdapter {
         holder.dateView.setText(selfieItem.getLabel());
         holder.imageView.setImageBitmap(selfieItem.getThumb());
 
-        //FlipAnimation flipAnimation = new FlipAnimation(holder.imageView, holder.checkMarkView);
+        FlipAnimation flipAnimation = new FlipAnimation(holder.imageView, holder.checkMarkView);
         if (isPositionChecked(position) && holder.imageView.getVisibility()==View.VISIBLE) {
-            holder.thumbRoot.startAnimation(holder.flipAnimation);
+            holder.thumbRoot.startAnimation(flipAnimation);
         } else if (!isPositionChecked(position) && holder.imageView.getVisibility()==View.GONE) {
-            holder.flipAnimation.reverse();
-            holder.thumbRoot.startAnimation(holder.flipAnimation);
+            flipAnimation.reverse();
+            holder.thumbRoot.startAnimation(flipAnimation);
         }
 
         return row;
