@@ -23,7 +23,6 @@ import java.util.Set;
 public class SelfieListAdapter extends BaseAdapter {
     private final Context mContext;
     private final List<SelfieItem> mItems = new ArrayList<>();
-    private SparseBooleanArray mSelection = new SparseBooleanArray();
 
     public SelfieListAdapter(Context context) {
         mContext = context;
@@ -38,16 +37,12 @@ public class SelfieListAdapter extends BaseAdapter {
 
     }
 
-    // Returns the number of ToDoItems
-
     @Override
     public int getCount() {
 
         return mItems.size();
 
     }
-
-    // Retrieve the number of ToDoItems
 
     @Override
     public Object getItem(int pos) {
@@ -56,7 +51,7 @@ public class SelfieListAdapter extends BaseAdapter {
 
     }
 
-    // Get the ID for the ToDoItem
+    // Get the ID for the SelfieItem
     // In this case it's just the position
 
     @Override
@@ -92,7 +87,6 @@ public class SelfieListAdapter extends BaseAdapter {
             holder.imageView = (ImageView) row.findViewById(R.id.thumbNail);
             holder.checkMarkView = (ImageView) row.findViewById(R.id.checkMark);
             holder.thumbRoot = (View) row.findViewById(R.id.thumbNailRoot);
-            //holder.flipAnimation = new FlipAnimation(holder.imageView, holder.checkMarkView);
 
             row.setTag(holder);
             Log.i(MainActivity.TAG,"new view, pos="+position);
@@ -125,30 +119,32 @@ public class SelfieListAdapter extends BaseAdapter {
     }
 
     public void addItemToSelectionSet(int position) {
-        mSelection.put(position, true);
+        ((SelfieItem) getItem(position)).setChecked(true);
         notifyDataSetChanged();
     }
 
     public int getNumberOfCheckedPositions() {
         int nCheck=0;
-        for (int i=0;i<mSelection.size();i++) {
-            if (mSelection.valueAt(i)) nCheck++;
+        for (int i=0;i<getCount();i++) {
+            if (((SelfieItem) getItem(i)).isChecked()) nCheck++;
         }
         return nCheck;
     }
 
     public boolean isPositionChecked(int position) {
-        Boolean result = mSelection.get(position);
+        Boolean result = ((SelfieItem) getItem(position)).isChecked();
         return result;
     }
 
     public void removeItemFromSelectionSet(int position) {
-        mSelection.delete(position);
+        ((SelfieItem) getItem(position)).setChecked(false);
         notifyDataSetChanged();
     }
 
     public void removeAllFromSelectionSet() {
-        mSelection.clear();
+        for (int i=0;i<getCount();i++) {
+            ((SelfieItem) getItem(i)).setChecked(false);
+        }
         notifyDataSetChanged();
     }
 }
