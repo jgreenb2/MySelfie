@@ -26,6 +26,7 @@
             android:layout_height="fill_parent"
             android:layout_width="match_parent"
             android:id="@+id/checkMark"
+            android:visibility="gone"
             android:background="@drawable/checkmark" />
     </RelativeLayout>
 

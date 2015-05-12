@@ -41,7 +41,7 @@ public class MainActivity extends ActionBarActivity {
     static private AlarmReceiver mAlarmReceiver;
 
     static private Context mContext;
-    static final private String TAG="Selfie_app";
+    static final String TAG="Selfie_app";
 
     static private int mThumbHeight, mThumbWidth;
     @Override

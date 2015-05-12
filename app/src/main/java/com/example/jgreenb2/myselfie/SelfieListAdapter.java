@@ -3,6 +3,7 @@ package com.example.jgreenb2.myselfie;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,11 +24,9 @@ public class SelfieListAdapter extends BaseAdapter {
     private final Context mContext;
     private final List<SelfieItem> mItems = new ArrayList<>();
     private SparseBooleanArray mSelection = new SparseBooleanArray();
-    private Bitmap mCheckMark;
 
     public SelfieListAdapter(Context context) {
         mContext = context;
-        mCheckMark = BitmapFactory.decodeResource(context.getResources(), R.drawable.checkmark);
     }
 
     // Clears the list adapter of all items.
@@ -96,25 +95,23 @@ public class SelfieListAdapter extends BaseAdapter {
             holder.flipAnimation = new FlipAnimation(holder.imageView, holder.checkMarkView);
 
             row.setTag(holder);
+            Log.i(MainActivity.TAG,"new view, pos="+position);
         } else {
             row = convertView;
             holder = (ViewHolder) row.getTag();
+            Log.i(MainActivity.TAG, "reusing view, pos="+position);
         }
 
         holder.dateView.setText(selfieItem.getLabel());
-        holder.checkMarkView.setImageBitmap(mCheckMark);
         holder.imageView.setImageBitmap(selfieItem.getThumb());
 
-        if (isPositionChecked(position) && !selfieItem.isChecked()) {
+        //FlipAnimation flipAnimation = new FlipAnimation(holder.imageView, holder.checkMarkView);
+        if (isPositionChecked(position) && holder.imageView.getVisibility()==View.VISIBLE) {
             holder.thumbRoot.startAnimation(holder.flipAnimation);
-            selfieItem.setChecked(true);
-        } else if (!isPositionChecked(position) && selfieItem.isChecked()) {
+        } else if (!isPositionChecked(position) && holder.imageView.getVisibility()==View.GONE) {
             holder.flipAnimation.reverse();
             holder.thumbRoot.startAnimation(holder.flipAnimation);
-            selfieItem.setChecked(false);
         }
-
-
 
         return row;
     }
