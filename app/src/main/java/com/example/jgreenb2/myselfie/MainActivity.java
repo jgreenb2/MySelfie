@@ -5,6 +5,7 @@ package com.example.jgreenb2.myselfie;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -16,8 +17,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -77,10 +80,51 @@ public class MainActivity extends ActionBarActivity {
         mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         mListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
             @Override
+<<<<<<< HEAD
             public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
                 Log.i(TAG, "StateChange! pos=" + position + " checked=" + checked);
                 mSelfieAdapter.requestCheckmarkThumbTransition(position);
                 mode.setTitle(Integer.toString(mSelfieAdapter.getNumberOfCheckedPositions()));
+=======
+            public void onItemCheckedStateChanged(final ActionMode mode, final int position, long id, final boolean checked) {
+                final View itemView = getViewFromPosition(mListView,position);
+                final View rootView = itemView.findViewById(R.id.thumbNailRoot);
+                ImageView thumbView = (ImageView) rootView.findViewById(R.id.thumbNail);
+                ImageView checkView = (ImageView) rootView.findViewById(R.id.checkMark);
+
+                // create an animation
+                FlipAnimation flipAnimation = new FlipAnimation(thumbView, checkView);
+                flipAnimation.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        rootView.setHasTransientState(true);
+                        mListView.setEnabled(false);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        rootView.setHasTransientState(false);
+                        if (checked) {
+                            mSelfieAdapter.addItemToSelectionSet(position, true);
+                        } else {
+                            mSelfieAdapter.removeItemFromSelectionSet(position);
+                        }
+                        mode.setTitle(Integer.toString(mSelfieAdapter.getNumberOfCheckedPositions()));
+                        mListView.setEnabled(true);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+                if (checked) {
+                    rootView.startAnimation(flipAnimation);
+                } else {
+                    flipAnimation.reverse();
+                    rootView.startAnimation(flipAnimation);
+                }
+>>>>>>> a19077e... animation now works (whew!)
             }
 
             @Override

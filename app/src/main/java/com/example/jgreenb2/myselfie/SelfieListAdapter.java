@@ -89,8 +89,12 @@ public class SelfieListAdapter extends BaseAdapter {
             holder = new ViewHolder();
             holder.dateView = (TextView) row.findViewById(R.id.photoDate);
             holder.imageView = (ImageView) row.findViewById(R.id.thumbNail);
+<<<<<<< HEAD
             holder.checkMarkView = (ImageView) row.findViewById(R.id.checkMark);
             holder.thumbRoot = (View) row.findViewById(R.id.thumbNailRoot);
+=======
+            holder.checkView = (ImageView) row.findViewById(R.id.checkMark);
+>>>>>>> a19077e... animation now works (whew!)
 
             row.setTag(holder);
             Log.i(MainActivity.TAG,"new view, pos="+position+" checked="+selfieItem.isChecked()
@@ -104,6 +108,7 @@ public class SelfieListAdapter extends BaseAdapter {
 
         holder.dateView.setText(selfieItem.getLabel());
         holder.imageView.setImageBitmap(selfieItem.getThumb());
+<<<<<<< HEAD
 
 
         if (selfieItem.getAnimationTransitionState()== SelfieItem.transitionState.SCHEDULED) {
@@ -149,12 +154,25 @@ public class SelfieListAdapter extends BaseAdapter {
             }
         }
 
+=======
+        if (isPositionChecked(position)) {
+            holder.checkView.setVisibility(View.VISIBLE);
+            holder.imageView.setVisibility(View.GONE);
+        } else {
+            holder.checkView.setVisibility(View.GONE);
+            holder.imageView.setVisibility(View.VISIBLE);
+        }
+>>>>>>> a19077e... animation now works (whew!)
         return row;
     }
 
     private static class ViewHolder {
         public ImageView imageView;
+<<<<<<< HEAD
         public ImageView checkMarkView;
+=======
+        public ImageView checkView;
+>>>>>>> a19077e... animation now works (whew!)
         public TextView dateView;
         public View thumbRoot;
         public FlipAnimation flipAnimation;
