@@ -89,12 +89,8 @@ public class SelfieListAdapter extends BaseAdapter {
             holder = new ViewHolder();
             holder.dateView = (TextView) row.findViewById(R.id.photoDate);
             holder.imageView = (ImageView) row.findViewById(R.id.thumbNail);
-<<<<<<< HEAD
-            holder.checkMarkView = (ImageView) row.findViewById(R.id.checkMark);
-            holder.thumbRoot = (View) row.findViewById(R.id.thumbNailRoot);
-=======
             holder.checkView = (ImageView) row.findViewById(R.id.checkMark);
->>>>>>> a19077e... animation now works (whew!)
+
 
             row.setTag(holder);
             Log.i(MainActivity.TAG,"new view, pos="+position+" checked="+selfieItem.isChecked()
@@ -108,53 +104,7 @@ public class SelfieListAdapter extends BaseAdapter {
 
         holder.dateView.setText(selfieItem.getLabel());
         holder.imageView.setImageBitmap(selfieItem.getThumb());
-<<<<<<< HEAD
 
-
-        if (selfieItem.getAnimationTransitionState()== SelfieItem.transitionState.SCHEDULED) {
-            selfieItem.setAnimation(new FlipAnimation(holder.imageView,holder.checkMarkView));
-            selfieItem.getAnimation().setTag(selfieItem);
-            selfieItem.getAnimation().setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-//                    FlipAnimation flipAnimation = (FlipAnimation) animation;
-//                    SelfieItem curSelfieItem = (SelfieItem) flipAnimation.getTag();
-//                    curSelfieItem.setAnimationTransitionState(SelfieItem.transitionState.INPROGRESS);
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    FlipAnimation flipAnimation = (FlipAnimation) animation;
-                    SelfieItem curSelfieItem = (SelfieItem) flipAnimation.getTag();
-                    curSelfieItem.setAnimationTransitionState(SelfieItem.transitionState.UNSCHEDULED);
-                    curSelfieItem.setChecked(!curSelfieItem.isChecked());
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-
-                }
-            });
-
-            selfieItem.setAnimationTransitionState(SelfieItem.transitionState.INPROGRESS);
-            if (selfieItem.isChecked()) {
-                selfieItem.getAnimation().reverse();
-                holder.thumbRoot.startAnimation(selfieItem.getAnimation());
-            } else {
-                holder.thumbRoot.startAnimation(selfieItem.getAnimation());
-            }
-        } else if (selfieItem.getAnimationTransitionState()== SelfieItem.transitionState.UNSCHEDULED) {
-            if (selfieItem.isChecked()) {
-                holder.imageView.setVisibility(View.GONE);
-                holder.checkMarkView.setVisibility(View.VISIBLE);
-            } else {
-                holder.imageView.setVisibility(View.VISIBLE);
-                holder.checkMarkView.setVisibility(View.GONE);
-            }
-        }
-
-=======
         if (isPositionChecked(position)) {
             holder.checkView.setVisibility(View.VISIBLE);
             holder.imageView.setVisibility(View.GONE);
@@ -162,17 +112,14 @@ public class SelfieListAdapter extends BaseAdapter {
             holder.checkView.setVisibility(View.GONE);
             holder.imageView.setVisibility(View.VISIBLE);
         }
->>>>>>> a19077e... animation now works (whew!)
+
         return row;
     }
 
     private static class ViewHolder {
         public ImageView imageView;
-<<<<<<< HEAD
-        public ImageView checkMarkView;
-=======
+
         public ImageView checkView;
->>>>>>> a19077e... animation now works (whew!)
         public TextView dateView;
         public View thumbRoot;
         public FlipAnimation flipAnimation;

@@ -80,12 +80,6 @@ public class MainActivity extends ActionBarActivity {
         mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         mListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
             @Override
-<<<<<<< HEAD
-            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-                Log.i(TAG, "StateChange! pos=" + position + " checked=" + checked);
-                mSelfieAdapter.requestCheckmarkThumbTransition(position);
-                mode.setTitle(Integer.toString(mSelfieAdapter.getNumberOfCheckedPositions()));
-=======
             public void onItemCheckedStateChanged(final ActionMode mode, final int position, long id, final boolean checked) {
                 final View itemView = getViewFromPosition(mListView,position);
                 final View rootView = itemView.findViewById(R.id.thumbNailRoot);
@@ -105,7 +99,7 @@ public class MainActivity extends ActionBarActivity {
                     public void onAnimationEnd(Animation animation) {
                         rootView.setHasTransientState(false);
                         if (checked) {
-                            mSelfieAdapter.addItemToSelectionSet(position, true);
+                            mSelfieAdapter.addItemToSelectionSet(position);
                         } else {
                             mSelfieAdapter.removeItemFromSelectionSet(position);
                         }
@@ -124,7 +118,6 @@ public class MainActivity extends ActionBarActivity {
                     flipAnimation.reverse();
                     rootView.startAnimation(flipAnimation);
                 }
->>>>>>> a19077e... animation now works (whew!)
             }
 
             @Override
