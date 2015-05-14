@@ -32,24 +32,18 @@ public class SelfieListAdapter extends BaseAdapter {
     // Clears the list adapter of all items.
 
     public void clear() {
-
         mItems.clear();
         notifyDataSetChanged();
-
     }
 
     @Override
     public int getCount() {
-
         return mItems.size();
-
     }
 
     @Override
     public Object getItem(int pos) {
-
         return mItems.get(pos);
-
     }
 
     // Get the ID for the SelfieItem
@@ -57,19 +51,15 @@ public class SelfieListAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int pos) {
-
         return pos;
-
     }
 
     // Add a SelfieItem to the adapter
     // Notify observers that the data set has changed
 
     public void add(SelfieItem item) {
-
         mItems.add(item);
         notifyDataSetChanged();
-
     }
 
     @Override
@@ -78,9 +68,6 @@ public class SelfieListAdapter extends BaseAdapter {
         ViewHolder holder;
 
         final SelfieItem selfieItem = (SelfieItem) getItem(position);
-        if (selfieItem.getAnimationTransitionState()== SelfieItem.transitionState.INPROGRESS) {
-            Log.i(MainActivity.TAG, "getView while animation INPROGRESS! pos=" + position);
-        }
 
         if (convertView==null) {
             LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -93,13 +80,9 @@ public class SelfieListAdapter extends BaseAdapter {
 
 
             row.setTag(holder);
-            Log.i(MainActivity.TAG,"new view, pos="+position+" checked="+selfieItem.isChecked()
-                                  +" label="+selfieItem.getLabel());
         } else {
             row = convertView;
             holder = (ViewHolder) row.getTag();
-            Log.i(MainActivity.TAG, "reusing view, pos="+position+" checked="+selfieItem.isChecked()
-                                   +" label="+selfieItem.getLabel());
         }
 
         holder.dateView.setText(selfieItem.getLabel());
@@ -118,11 +101,9 @@ public class SelfieListAdapter extends BaseAdapter {
 
     private static class ViewHolder {
         public ImageView imageView;
-
         public ImageView checkView;
         public TextView dateView;
-        public View thumbRoot;
-        public FlipAnimation flipAnimation;
+
     }
 
     public void addItemToSelectionSet(int position) {
@@ -153,20 +134,5 @@ public class SelfieListAdapter extends BaseAdapter {
             ((SelfieItem) getItem(i)).setChecked(false);
         }
         notifyDataSetChanged();
-    }
-
-    public void requestCheckmarkThumbTransition(int position) {
-        SelfieItem selfieItem = (SelfieItem) getItem(position);
-        selfieItem.setAnimationTransitionState(SelfieItem.transitionState.SCHEDULED);
-        notifyDataSetChanged();
-    }
-
-    public void logSelfies() {
-        SelfieItem selfieItem;
-        for (int i=0;i<getCount();i++) {
-            selfieItem = (SelfieItem) getItem(i);
-            Log.i(MainActivity.TAG, "reusing view, index="+i+" checked="+selfieItem.isChecked()
-                    +" label="+selfieItem.getLabel());
-        }
     }
 }

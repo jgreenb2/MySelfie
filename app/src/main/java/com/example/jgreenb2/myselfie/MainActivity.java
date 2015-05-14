@@ -139,13 +139,6 @@ public class MainActivity extends ActionBarActivity {
                         Toast.makeText(mContext,"deleting selection",Toast.LENGTH_LONG).show();
                         mode.finish();
                         return true;
-                    case R.id.cab_show_selfies:
-                        mSelfieAdapter.logSelfies();
-                        return true;
-                    case R.id.cab_show_adapter:
-                        Log.i(TAG,"first visible pos="+mListView.getFirstVisiblePosition());
-                        Log.i(TAG,"last visible pos=" + mListView.getLastVisiblePosition());
-                        return true;
                     default:
                         return false;
                 }
@@ -183,7 +176,6 @@ public class MainActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_selfie) {
             mCurrentPhotoLabel = createImageFileName();
             Log.i(TAG, "label=|" + mCurrentPhotoLabel + "|");
@@ -299,8 +291,6 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    // turns out we don't actually need this function but keep it here for
-    // future reference
     View getViewFromPosition(ListView listView,int position) {
         int firstVisiblePosition = listView.getFirstVisiblePosition();
         int viewPosition = position - firstVisiblePosition;

@@ -25,36 +25,8 @@ public class SelfieItem {
     private String mPhotoPath = new String();
     private boolean mIsChecked;
 
-
-    private FlipAnimation mAnimation;
-
-    enum transitionState {
-        SCHEDULED,
-        INPROGRESS,
-        UNSCHEDULED
-    }
-
-
-    private transitionState mAnimationTransitionState;
-
     static private final String THUMB_DIR = "thumbs";
     private final int QUALITY=75;
-
-    public FlipAnimation getAnimation() {
-        return mAnimation;
-    }
-
-    public void setAnimation(FlipAnimation mAnimation) {
-        this.mAnimation = mAnimation;
-    }
-
-    public transitionState getAnimationTransitionState() {
-        return mAnimationTransitionState;
-    }
-
-    public void setAnimationTransitionState(transitionState mAnimationTransitionState) {
-        this.mAnimationTransitionState = mAnimationTransitionState;
-    }
 
     public String getPhotoPath() {
         return mPhotoPath;
@@ -91,7 +63,6 @@ public class SelfieItem {
             mThumb = null;
         }
         mIsChecked = false;
-        setAnimationTransitionState(transitionState.UNSCHEDULED);
     }
 
     public String getLabel() {
