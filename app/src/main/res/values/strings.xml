@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">MySelfie</string>
 
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="delete_conf_msg">Preparing to delete %d items. This action cannot be undone. Ok to proceed?</string>
+    <string name="ok_button">Ok</string>
+    <string name="cancel_button">Cancel</string>
 </resources>

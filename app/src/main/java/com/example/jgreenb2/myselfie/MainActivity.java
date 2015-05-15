@@ -33,6 +33,7 @@ import java.util.Date;
 public class MainActivity extends ActionBarActivity {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 1;
+    static final int FLIP_DURATION = 400;
     static String mCurrentPhotoPath;
     static String mCurrentPhotoLabel;
 
@@ -42,6 +43,8 @@ public class MainActivity extends ActionBarActivity {
     static private AlarmReceiver mAlarmReceiver;
 
     static private Context mContext;
+    private static DeleteDialog mDialog;
+
     static final String TAG="Selfie_app";
 
     static private int mThumbHeight, mThumbWidth;
@@ -51,7 +54,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         mContext = getApplicationContext();
-
+        mDialog = new DeleteDialog();
         mSelfieAdapter = new SelfieListAdapter(MainActivity.this);
 
         mListView = (ListView) findViewById(R.id.listView);
@@ -86,6 +89,7 @@ public class MainActivity extends ActionBarActivity {
 
                 // create an animation
                 FlipAnimation flipAnimation = new FlipAnimation(thumbView, checkView);
+                flipAnimation.setDuration(FLIP_DURATION);
                 flipAnimation.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
@@ -135,12 +139,22 @@ public class MainActivity extends ActionBarActivity {
                 switch (item.getItemId()) {
                     case R.id.cab_delete:
                         ArrayList<Integer> selectedPositions = mSelfieAdapter.getSelectionSet();
-                        for (int i=0;i<selectedPositions.size();i++) {
-                            int position = selectedPositions.get(i);
-                            mSelfieAdapter.deleteSelfie(position);
+                        Bundle dialogParam = new Bundle();
+                        dialogParam.putInt("nDel", selectedPositions.size());
+                        dialogParam.putIntegerArrayList("selectedPositions", selectedPositions);
+                        mDialog.setArguments(dialogParam);
+                        mDialog.show(getFragmentManager(),"deleteDialog");
+                        if (mDialog.isDeleteConfirmed()) {
+                            for (int i = 0; i < selectedPositions.size(); i++) {
+                                int position = selectedPositions.get(i);
+                                mSelfieAdapter.deleteSelfie(position);
+                            }
+                            mSelfieAdapter.removeItem(selectedPositions);
+                            String notifyText = String.format("%d items deleted", selectedPositions.size());
+                            Toast.makeText(mContext, notifyText, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(mContext, "delete canceled", Toast.LENGTH_SHORT).show();
                         }
-                        mSelfieAdapter.removeItem(selectedPositions);
-                        Toast.makeText(mContext,"deleting selection",Toast.LENGTH_LONG).show();
                         mode.finish();
                         return true;
                     default:
