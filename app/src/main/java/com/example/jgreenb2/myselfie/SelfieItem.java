@@ -25,7 +25,7 @@ public class SelfieItem {
     private String mPhotoPath = new String();
     private boolean mIsChecked;
 
-    static private final String THUMB_DIR = "thumbs";
+    static public final String THUMB_DIR = "thumbs";
     private final int QUALITY=75;
 
     public String getPhotoPath() {

@@ -5,7 +5,6 @@ package com.example.jgreenb2.myselfie;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -27,9 +26,8 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.Set;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -136,6 +134,12 @@ public class MainActivity extends ActionBarActivity {
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.cab_delete:
+                        ArrayList<Integer> selectedPositions = mSelfieAdapter.getSelectionSet();
+                        for (int i=0;i<selectedPositions.size();i++) {
+                            int position = selectedPositions.get(i);
+                            mSelfieAdapter.deleteSelfie(position);
+                        }
+                        mSelfieAdapter.removeItem(selectedPositions);
                         Toast.makeText(mContext,"deleting selection",Toast.LENGTH_LONG).show();
                         mode.finish();
                         return true;

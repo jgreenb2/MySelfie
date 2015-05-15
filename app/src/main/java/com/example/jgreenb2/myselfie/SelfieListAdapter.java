@@ -13,9 +13,14 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 /**
@@ -34,6 +39,29 @@ public class SelfieListAdapter extends BaseAdapter {
     public void clear() {
         mItems.clear();
         notifyDataSetChanged();
+    }
+
+    public void removeItem(int pos) {
+        mItems.remove(pos);
+        notifyDataSetChanged();
+    }
+
+    // It's not safe to call removeItem(int) from a loop -- this will generate an
+    // exception because the list.remove() isn't iterator-safe. To handle multiple
+    // deletions we pass in an ArrayList of positions to be deleted and iterate
+    // over mItems.
+    //
+    // However, this is trickier than it should be because of the way java deals with
+    // lists and iterators.  We need to scan backward through the list so that
+    // the index positions are stable.
+    //
+    public void removeItem(ArrayList<Integer> list) {
+        Collections.sort(list,Collections.reverseOrder());
+        ListIterator<SelfieItem> j = mItems.listIterator(mItems.size());
+        for (int i : list) {
+            while (j.previousIndex()+1 > i)j.previous();
+            j.remove();
+        }
     }
 
     @Override
@@ -124,6 +152,15 @@ public class SelfieListAdapter extends BaseAdapter {
         return result;
     }
 
+    public ArrayList<Integer> getSelectionSet() {
+       ArrayList<Integer> checkedPositions =  new ArrayList<>();
+        for (int i=0;i<getCount();i++) {
+            SelfieItem selfieItem = (SelfieItem) getItem(i);
+            if (selfieItem.isChecked()) checkedPositions.add(i);
+        }
+        return checkedPositions;
+    }
+
     public void removeItemFromSelectionSet(int position) {
         ((SelfieItem) getItem(position)).setChecked(false);
         notifyDataSetChanged();
@@ -134,5 +171,18 @@ public class SelfieListAdapter extends BaseAdapter {
             ((SelfieItem) getItem(i)).setChecked(false);
         }
         notifyDataSetChanged();
+    }
+
+    public void deleteSelfie(int position) {
+        SelfieItem selfieItem = (SelfieItem) getItem(position);
+        String photoPath = selfieItem.getPhotoPath();
+        File photoFile = new File(photoPath);
+        photoFile.delete();
+        int lastSlash = photoPath.lastIndexOf('/');
+        String thumbName = photoPath.substring(lastSlash+1);
+        String photoDir = photoPath.substring(0,lastSlash-1);
+        String thumbPath = photoDir+"/../"+SelfieItem.THUMB_DIR+"/"+thumbName;
+        File thumbFile = new File(thumbPath);
+        thumbFile.delete();
     }
 }
