@@ -29,7 +29,6 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 
@@ -83,6 +82,8 @@ public class MainActivity extends ActionBarActivity {
         });
         mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         mListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+            BroadcastReceiver receiveTerminateCABEvent;
+            BroadcastReceiver receiveDeleteEvents;
             @Override
             public void onItemCheckedStateChanged(final ActionMode mode, final int position, long id, final boolean checked) {
                 final View itemView = getViewFromPosition(mListView,position);
@@ -117,23 +118,38 @@ public class MainActivity extends ActionBarActivity {
 
                     }
                 });
-                if (checked) {
-                    rootView.startAnimation(flipAnimation);
-                } else {
-                    flipAnimation.reverse();
-                    rootView.startAnimation(flipAnimation);
-                }
+
+                if (!checked) flipAnimation.reverse();
+                rootView.startAnimation(flipAnimation);
             }
 
             @Override
-            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            public boolean onCreateActionMode(final ActionMode mode, Menu menu) {
                 MenuInflater menuInflater = mode.getMenuInflater();
                 menuInflater.inflate(R.menu.cab_menu, menu);
+                receiveTerminateCABEvent = new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        mode.finish();
+                    }
+                };
+                LocalBroadcastManager.getInstance(mContext).registerReceiver(receiveTerminateCABEvent,
+                        new IntentFilter("terminate-cab-event"));
+
+                receiveDeleteEvents = new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        Toast.makeText(context,"got delete message!",Toast.LENGTH_LONG).show();
+                    }
+                };
+
+                LocalBroadcastManager.getInstance(mContext).registerReceiver(this.receiveDeleteEvents,
+                        new IntentFilter("delete-selfie-event"));
                 return true;
             }
 
             @Override
-            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            public boolean onPrepareActionMode(final ActionMode mode, Menu menu) {
                 return false;
             }
 
@@ -141,9 +157,7 @@ public class MainActivity extends ActionBarActivity {
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.cab_delete:
-                        ArrayList<Integer> selectedPositions = mSelfieAdapter.getSelectionSet();
-                        mDialog.show(getFragmentManager(),"confirmDeleteDialog");
-                        mode.finish();
+                        mDialog.show(getFragmentManager(), "confirmDeleteDialog");
                         return true;
                     default:
                         return false;
@@ -154,6 +168,8 @@ public class MainActivity extends ActionBarActivity {
             public void onDestroyActionMode(ActionMode mode) {
                 // uncheck all
                 mSelfieAdapter.removeAllFromSelectionSet();
+                LocalBroadcastManager.getInstance(mContext).unregisterReceiver(receiveTerminateCABEvent);
+                LocalBroadcastManager.getInstance(mContext).unregisterReceiver(receiveDeleteEvents);
             }
         });
 
@@ -166,22 +182,6 @@ public class MainActivity extends ActionBarActivity {
 
         mAlarmReceiver.setSelfieAlarm();
 
-        // setup as a receiver of the delete selfie event
-        LocalBroadcastManager.getInstance(this).registerReceiver(mRecieveDeleteEvents,
-                new IntentFilter("delete-selfie-event"));
-    }
-
-    private BroadcastReceiver mRecieveDeleteEvents = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Toast.makeText(context,"got delete message!",Toast.LENGTH_LONG).show();
-        }
-    };
-
-    @Override
-    protected void onDestroy() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRecieveDeleteEvents);
-        super.onDestroy();
     }
 
     @Override
