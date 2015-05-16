@@ -35,7 +35,7 @@ import java.util.Date;
 public class MainActivity extends ActionBarActivity {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 1;
-    static final int FLIP_DURATION = 400;
+
     static String mCurrentPhotoPath;
     static String mCurrentPhotoLabel;
 
@@ -45,7 +45,7 @@ public class MainActivity extends ActionBarActivity {
     static private AlarmReceiver mAlarmReceiver;
 
     static private Context mContext;
-    private static ConfirmDeleteDialog mDialog;
+
 
     static final String TAG="Selfie_app";
 
@@ -56,7 +56,6 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         mContext = getApplicationContext();
-        mDialog = new ConfirmDeleteDialog();
         mSelfieAdapter = new SelfieListAdapter(MainActivity.this);
 
         mListView = (ListView) findViewById(R.id.listView);
@@ -80,92 +79,10 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
         });
-        mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-        mListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
-            BroadcastReceiver receiveDeleteEvents;
-            @Override
-            public void onItemCheckedStateChanged(final ActionMode mode, final int position, long id, final boolean checked) {
-                final View itemView = getViewFromPosition(mListView,position);
-                final View rootView = itemView.findViewById(R.id.thumbNailRoot);
-                ImageView thumbView = (ImageView) rootView.findViewById(R.id.thumbNail);
-                ImageView checkView = (ImageView) rootView.findViewById(R.id.checkMark);
 
-                // create an animation
-                FlipAnimation flipAnimation = new FlipAnimation(thumbView, checkView);
-                flipAnimation.setDuration(FLIP_DURATION);
-                flipAnimation.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-                        rootView.setHasTransientState(true);
-                        mListView.setEnabled(false);
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        rootView.setHasTransientState(false);
-                        if (checked) {
-                            mSelfieAdapter.addItemToSelectionSet(position);
-                        } else {
-                            mSelfieAdapter.removeItemFromSelectionSet(position);
-                        }
-                        mode.setTitle(Integer.toString(mSelfieAdapter.getNumberOfCheckedPositions()));
-                        mListView.setEnabled(true);
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-                });
-
-                if (!checked) flipAnimation.reverse();
-                rootView.startAnimation(flipAnimation);
-            }
-
-            @Override
-            public boolean onCreateActionMode(final ActionMode mode, Menu menu) {
-                MenuInflater menuInflater = mode.getMenuInflater();
-                menuInflater.inflate(R.menu.cab_menu, menu);
-
-                receiveDeleteEvents = new BroadcastReceiver() {
-                    @Override
-                    public void onReceive(Context context, Intent intent) {
-                        mSelfieAdapter.removeSelectedSelfies();
-                        mode.finish();
-                    }
-                };
-
-                LocalBroadcastManager.getInstance(mContext).registerReceiver(this.receiveDeleteEvents,
-                        new IntentFilter("delete-selfie-event"));
-                return true;
-            }
-
-            @Override
-            public boolean onPrepareActionMode(final ActionMode mode, Menu menu) {
-                return false;
-            }
-
-            @Override
-            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.cab_delete:
-                        Bundle dialogParam = new Bundle();
-                        dialogParam.putInt("nSelected", mSelfieAdapter.getNumberOfCheckedPositions());
-                        mDialog.setArguments(dialogParam);
-                        mDialog.show(getFragmentManager(), "confirmDeleteDialog");
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-
-            @Override
-            public void onDestroyActionMode(ActionMode mode) {
-                // uncheck all
-                mSelfieAdapter.removeAllFromSelectionSet();
-                LocalBroadcastManager.getInstance(mContext).unregisterReceiver(receiveDeleteEvents);
-            }
-        });
+        // setup the Contextual Action Bar to allow multiple objects to
+        // be selected and deleted
+        new ContextualActionBar(this,mListView);
 
         Resources resources = getResources();
 
@@ -307,10 +224,4 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    View getViewFromPosition(ListView listView,int position) {
-        int firstVisiblePosition = listView.getFirstVisiblePosition();
-        int viewPosition = position - firstVisiblePosition;
-        return listView.getChildAt(viewPosition);
-
-    }
 }
