@@ -82,7 +82,6 @@ public class MainActivity extends ActionBarActivity {
         });
         mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         mListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
-            BroadcastReceiver receiveTerminateCABEvent;
             BroadcastReceiver receiveDeleteEvents;
             @Override
             public void onItemCheckedStateChanged(final ActionMode mode, final int position, long id, final boolean checked) {
@@ -127,19 +126,12 @@ public class MainActivity extends ActionBarActivity {
             public boolean onCreateActionMode(final ActionMode mode, Menu menu) {
                 MenuInflater menuInflater = mode.getMenuInflater();
                 menuInflater.inflate(R.menu.cab_menu, menu);
-                receiveTerminateCABEvent = new BroadcastReceiver() {
-                    @Override
-                    public void onReceive(Context context, Intent intent) {
-                        mode.finish();
-                    }
-                };
-                LocalBroadcastManager.getInstance(mContext).registerReceiver(receiveTerminateCABEvent,
-                        new IntentFilter("terminate-cab-event"));
 
                 receiveDeleteEvents = new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
                         mSelfieAdapter.removeSelectedSelfies();
+                        mode.finish();
                     }
                 };
 
@@ -171,7 +163,6 @@ public class MainActivity extends ActionBarActivity {
             public void onDestroyActionMode(ActionMode mode) {
                 // uncheck all
                 mSelfieAdapter.removeAllFromSelectionSet();
-                LocalBroadcastManager.getInstance(mContext).unregisterReceiver(receiveTerminateCABEvent);
                 LocalBroadcastManager.getInstance(mContext).unregisterReceiver(receiveDeleteEvents);
             }
         });

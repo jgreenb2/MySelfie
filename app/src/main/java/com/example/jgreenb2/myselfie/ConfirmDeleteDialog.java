@@ -33,14 +33,11 @@ public class ConfirmDeleteDialog extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intent = new Intent("delete-selfie-event");
                         LocalBroadcastManager.getInstance(getDialog().getContext()).sendBroadcast(intent);
-                        intent = new Intent("terminate-cab-event");
-                        LocalBroadcastManager.getInstance(getDialog().getContext()).sendBroadcast(intent);
                     }
                 }).
                 setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(getDialog().getContext(), "delete canceled", Toast.LENGTH_SHORT).show();
                     }
                 });
 
