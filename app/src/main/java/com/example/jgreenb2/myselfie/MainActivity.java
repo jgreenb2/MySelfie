@@ -139,7 +139,7 @@ public class MainActivity extends ActionBarActivity {
                 receiveDeleteEvents = new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
-                        Toast.makeText(context,"got delete message!",Toast.LENGTH_LONG).show();
+                        mSelfieAdapter.removeSelectedSelfies();
                     }
                 };
 
@@ -157,6 +157,9 @@ public class MainActivity extends ActionBarActivity {
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.cab_delete:
+                        Bundle dialogParam = new Bundle();
+                        dialogParam.putInt("nSelected", mSelfieAdapter.getNumberOfCheckedPositions());
+                        mDialog.setArguments(dialogParam);
                         mDialog.show(getFragmentManager(), "confirmDeleteDialog");
                         return true;
                     default:
