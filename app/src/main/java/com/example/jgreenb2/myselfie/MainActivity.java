@@ -115,10 +115,7 @@ public class MainActivity extends ActionBarActivity {
             dispatchTakePictureIntent(mCurrentPhotoLabel);
             return true;
         } else if (id == R.id.delete_selfies) {
-            SelfieItem.removeSelfies(mContext);
-            mSelfieAdapter.clear();
-            Toast.makeText(getApplicationContext(), "Selfie's Removed!",
-                    Toast.LENGTH_LONG).show();
+            mSelfieAdapter.removeAllSelfies();
         } else if (id == R.id.cancel_alarm) {
             mAlarmReceiver.cancelSelfieAlarm();
             Toast.makeText(getApplicationContext(), "Alarms Cancelled!",

@@ -135,11 +135,24 @@ public class SelfieListAdapter extends BaseAdapter {
 
     }
 
+    /* selection state methods
+
+        the selection state is set to true when a list item is 'checked'
+        during a contextual action bar multiple selection mode.
+
+        The user can select an arbitrary number of non-contiguous
+        positions for future deletion. Therefore we have to have methods
+        to track, set and clear the selection set.
+
+    */
+
+    // set the selection state for the item at position
     public void addItemToSelectionSet(int position) {
         ((SelfieItem) getItem(position)).setChecked(true);
         notifyDataSetChanged();
     }
 
+    // return the number of selected positions
     public int getNumberOfCheckedPositions() {
         int nCheck=0;
         for (int i=0;i<getCount();i++) {
@@ -148,11 +161,13 @@ public class SelfieListAdapter extends BaseAdapter {
         return nCheck;
     }
 
+    // return true when position is in the selected state
     public boolean isPositionChecked(int position) {
         Boolean result = ((SelfieItem) getItem(position)).isChecked();
         return result;
     }
 
+    // return the selection set as an ArrayList
     public ArrayList<Integer> getSelectionSet() {
        ArrayList<Integer> checkedPositions =  new ArrayList<>();
         for (int i=0;i<getCount();i++) {
@@ -162,11 +177,13 @@ public class SelfieListAdapter extends BaseAdapter {
         return checkedPositions;
     }
 
+    // unset the selection state of the item at position
     public void removeItemFromSelectionSet(int position) {
         ((SelfieItem) getItem(position)).setChecked(false);
         notifyDataSetChanged();
     }
 
+    // unset the selection state for all items
     public void removeAllFromSelectionSet() {
         for (int i=0;i<getCount();i++) {
             ((SelfieItem) getItem(i)).setChecked(false);
@@ -174,17 +191,33 @@ public class SelfieListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void addAllToSelectionSet() {
+        for (int i=0;i<getCount();i++) {
+            SelfieItem selfieItem = (SelfieItem) getItem(i);
+            if (!selfieItem.isChecked()) selfieItem.setChecked(true);
+        }
+    }
+
+    /* deletion methods
+
+        Items can be deleted one at a time, all at once or in selected
+        groups. These methods deal with deleting the actual files as well
+        as the ListAdapter entries
+
+     */
+    // delete the photo and thumbNail at position
     public void deleteSelfie(int position) {
         SelfieItem selfieItem = (SelfieItem) getItem(position);
         String photoPath = selfieItem.getPhotoPath();
         File photoFile = new File(photoPath);
-        photoFile.delete();
-        int lastSlash = photoPath.lastIndexOf('/');
-        String thumbName = photoPath.substring(lastSlash+1);
-        String photoDir = photoPath.substring(0,lastSlash-1);
-        String thumbPath = photoDir+"/../"+SelfieItem.THUMB_DIR+"/"+thumbName;
+        if (!photoFile.delete()) {
+            Log.i(MainActivity.TAG,"error deleting photo |"+photoPath+"|");
+        }
+        String thumbPath = selfieItem.getThumbPath();
         File thumbFile = new File(thumbPath);
-        thumbFile.delete();
+        if (!thumbFile.delete()) {
+            Log.i(MainActivity.TAG,"error deleting thumbNail |"+thumbPath+"|");
+        }
     }
 
     // This method deletes all the selfie photos, thumbNails and
@@ -198,5 +231,12 @@ public class SelfieListAdapter extends BaseAdapter {
         removeItem(selectedPositions);  // remove the adapter entries
         String notifyText = String.format("%d items deleted", selectedPositions.size());
         Toast.makeText(mContext, notifyText, Toast.LENGTH_SHORT).show();
+    }
+
+    // delete all selfies, thumbNails and adapter list entries
+    public void removeAllSelfies() {
+        addAllToSelectionSet();
+        removeSelectedSelfies();
+        notifyDataSetChanged();
     }
 }

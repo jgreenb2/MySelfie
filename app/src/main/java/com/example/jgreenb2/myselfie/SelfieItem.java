@@ -21,9 +21,11 @@ import java.util.Locale;
  */
 public class SelfieItem {
 
-    private String mLabel = new String();
-    private String mPhotoPath = new String();
+    private String mLabel;
+    private String mPhotoPath;
+    private String mThumbPath;
     private boolean mIsChecked;
+    private Bitmap mThumb;
 
     static public final String THUMB_DIR = "thumbs";
     private final int QUALITY=75;
@@ -32,11 +34,12 @@ public class SelfieItem {
         return mPhotoPath;
     }
 
-    public void setmPhotoPath(String mPhotoPath) {
-        this.mPhotoPath = mPhotoPath;
+
+    public String getThumbPath() {
+        return mThumbPath;
     }
 
-    private Bitmap mThumb;
+
 
     public boolean isChecked() {
         return mIsChecked;
@@ -88,15 +91,16 @@ public class SelfieItem {
         }
 
         // if the thumbnail already exists just read it in
-        String thumbName = thumbDirName+"/"+fileName;
-        File thumbNail = new File(thumbName);
+        String thumbPath = thumbDirName+"/"+fileName;
+        mThumbPath = thumbPath;
+        File thumbNail = new File(thumbPath);
         Bitmap thumb;
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
 
 
         if (thumbNail.exists()) {
             bmOptions.inJustDecodeBounds = false;
-            thumb=BitmapFactory.decodeFile(thumbName, bmOptions);
+            thumb=BitmapFactory.decodeFile(thumbPath, bmOptions);
             if (thumb==null) {
                 // if the thumbNail is corrupt delete it and try to recreate it
                 thumbNail.delete();
@@ -140,26 +144,5 @@ public class SelfieItem {
             }
         }
         return thumb;
-    }
-    // static method for removing all the selfies
-    static public void removeSelfies(Context context) {
-
-        // delete the image files
-        File storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        String storageDirAbsolutePath = storageDir.getAbsolutePath();
-        String thumbPath = storageDirAbsolutePath+"/../"+THUMB_DIR;
-        File[] files = new File(storageDirAbsolutePath).listFiles();
-
-        for (File f : files) {
-            f.delete();
-        }
-        // now delete the thumbNails
-        File thumbDir= new File(thumbPath);
-        files = thumbDir.listFiles();
-        for (File f : files) {
-            f.delete();
-        }
-        thumbDir.delete();
-
     }
 }
