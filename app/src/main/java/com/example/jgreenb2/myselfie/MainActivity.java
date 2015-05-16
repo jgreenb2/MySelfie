@@ -2,12 +2,15 @@ package com.example.jgreenb2.myselfie;
 /*
     5/7/15 -- adding contextual action bar
  */
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -43,7 +46,7 @@ public class MainActivity extends ActionBarActivity {
     static private AlarmReceiver mAlarmReceiver;
 
     static private Context mContext;
-    private static DeleteDialog mDialog;
+    private static ConfirmDeleteDialog mDialog;
 
     static final String TAG="Selfie_app";
 
@@ -54,7 +57,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         mContext = getApplicationContext();
-        mDialog = new DeleteDialog();
+        mDialog = new ConfirmDeleteDialog();
         mSelfieAdapter = new SelfieListAdapter(MainActivity.this);
 
         mListView = (ListView) findViewById(R.id.listView);
@@ -139,22 +142,7 @@ public class MainActivity extends ActionBarActivity {
                 switch (item.getItemId()) {
                     case R.id.cab_delete:
                         ArrayList<Integer> selectedPositions = mSelfieAdapter.getSelectionSet();
-                        Bundle dialogParam = new Bundle();
-                        dialogParam.putInt("nDel", selectedPositions.size());
-                        dialogParam.putIntegerArrayList("selectedPositions", selectedPositions);
-                        mDialog.setArguments(dialogParam);
-                        mDialog.show(getFragmentManager(),"deleteDialog");
-                        if (mDialog.isDeleteConfirmed()) {
-                            for (int i = 0; i < selectedPositions.size(); i++) {
-                                int position = selectedPositions.get(i);
-                                mSelfieAdapter.deleteSelfie(position);
-                            }
-                            mSelfieAdapter.removeItem(selectedPositions);
-                            String notifyText = String.format("%d items deleted", selectedPositions.size());
-                            Toast.makeText(mContext, notifyText, Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(mContext, "delete canceled", Toast.LENGTH_SHORT).show();
-                        }
+                        mDialog.show(getFragmentManager(),"confirmDeleteDialog");
                         mode.finish();
                         return true;
                     default:
@@ -177,8 +165,24 @@ public class MainActivity extends ActionBarActivity {
         mAlarmReceiver = new AlarmReceiver(MainActivity.this);
 
         mAlarmReceiver.setSelfieAlarm();
+
+        // setup as a receiver of the delete selfie event
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRecieveDeleteEvents,
+                new IntentFilter("delete-selfie-event"));
     }
 
+    private BroadcastReceiver mRecieveDeleteEvents = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Toast.makeText(context,"got delete message!",Toast.LENGTH_LONG).show();
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRecieveDeleteEvents);
+        super.onDestroy();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

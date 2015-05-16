@@ -12,6 +12,7 @@ import android.view.animation.Animation;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -184,5 +185,18 @@ public class SelfieListAdapter extends BaseAdapter {
         String thumbPath = photoDir+"/../"+SelfieItem.THUMB_DIR+"/"+thumbName;
         File thumbFile = new File(thumbPath);
         thumbFile.delete();
+    }
+
+    // This method deletes all the selfie photos, thumbNails and
+    // adapter list entries associated with the currently selected positions
+    public void removeSelectedSelfies() {
+        ArrayList<Integer> selectedPositions = getSelectionSet();
+        for (int i = 0; i < selectedPositions.size(); i++) {
+            int position = selectedPositions.get(i);
+            deleteSelfie(position); // remove the photos and thumbs
+        }
+        removeItem(selectedPositions);  // remove the adapter entries
+        String notifyText = String.format("%d items deleted", selectedPositions.size());
+        Toast.makeText(mContext, notifyText, Toast.LENGTH_SHORT).show();
     }
 }
