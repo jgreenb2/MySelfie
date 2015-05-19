@@ -1,5 +1,6 @@
 package com.example.jgreenb2.myselfie;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -30,6 +31,7 @@ import java.util.Set;
 public class SelfieListAdapter extends BaseAdapter {
     private final Context mContext;
     private final List<SelfieItem> mItems = new ArrayList<>();
+    private int mContextPos;
 
     public SelfieListAdapter(Context context) {
         mContext = context;
@@ -106,7 +108,7 @@ public class SelfieListAdapter extends BaseAdapter {
             holder.dateView = (TextView) row.findViewById(R.id.photoDate);
             holder.imageView = (ImageView) row.findViewById(R.id.thumbNail);
             holder.checkView = (ImageView) row.findViewById(R.id.checkMark);
-
+            holder.contextView = (ImageView) row.findViewById(R.id.contextMenu);
 
             row.setTag(holder);
         } else {
@@ -125,6 +127,18 @@ public class SelfieListAdapter extends BaseAdapter {
             holder.imageView.setVisibility(View.VISIBLE);
         }
 
+
+
+        holder.contextView.setTag(position);
+        holder.contextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mContextPos = (int) v.getTag();
+                ((Activity) mContext).registerForContextMenu(v);
+                ((Activity) mContext).openContextMenu(v);
+                ((Activity) mContext).unregisterForContextMenu(v);
+            }
+        });
         return row;
     }
 
@@ -132,7 +146,12 @@ public class SelfieListAdapter extends BaseAdapter {
         public ImageView imageView;
         public ImageView checkView;
         public TextView dateView;
+        public ImageView contextView;
 
+    }
+
+    public int getContextPos() {
+        return mContextPos;
     }
 
     /* selection state methods

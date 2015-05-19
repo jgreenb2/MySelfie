@@ -15,6 +15,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -50,6 +51,38 @@ public class MainActivity extends ActionBarActivity {
     static final String TAG="Selfie_app";
 
     static private int mThumbHeight, mThumbWidth;
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.context_menu,menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.delete_single_selfie:
+                Toast.makeText(mContext,"deleting item "+mSelfieAdapter.getContextPos(),Toast.LENGTH_LONG).show();
+            break;
+
+            case R.id.rename_selfie:
+                Toast.makeText(mContext,"rename item "+mSelfieAdapter.getContextPos(),Toast.LENGTH_LONG).show();
+            break;
+
+            case R.id.email_selfie:
+                Toast.makeText(mContext,"email item "+mSelfieAdapter.getContextPos(),Toast.LENGTH_LONG).show();
+            break;
+
+            default:
+                return false;
+
+        }
+        return true;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
