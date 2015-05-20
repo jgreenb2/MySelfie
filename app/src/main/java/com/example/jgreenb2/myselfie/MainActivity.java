@@ -56,18 +56,8 @@ public class MainActivity extends ActionBarActivity {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.context_menu,menu);
-        mReceiveDeleteEvents = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                mSelfieAdapter.addItemToSelectionSet(mSelfieAdapter.getContextPos());
-                mSelfieAdapter.removeSelectedSelfies();
-                LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mReceiveDeleteEvents);
-            }
-        };
+        inflater.inflate(R.menu.context_menu, menu);
 
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(mReceiveDeleteEvents,
-                new IntentFilter("delete-selected-selfies-event"));
     }
 
     @Override
@@ -76,6 +66,19 @@ public class MainActivity extends ActionBarActivity {
         int id = item.getItemId();
         switch (id) {
             case R.id.delete_single_selfie:
+                mReceiveDeleteEvents = new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        if (intent.hasExtra("ExecuteDelete")) {
+                            mSelfieAdapter.addItemToSelectionSet(mSelfieAdapter.getContextPos());
+                            mSelfieAdapter.removeSelectedSelfies();
+                        }
+                        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mReceiveDeleteEvents);
+                    }
+                };
+                LocalBroadcastManager.getInstance(mContext).registerReceiver(mReceiveDeleteEvents,
+                        new IntentFilter("delete-selected-selfies-event"));
+
                 ConfirmDeleteDialog dialog = new ConfirmDeleteDialog();
                 Bundle dialogParam = new Bundle();
                 dialogParam.putInt("nSelected", 1);
