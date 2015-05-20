@@ -231,12 +231,12 @@ public class SelfieListAdapter extends BaseAdapter {
         removeItem(selectedPositions);  // remove the adapter entries
         String notifyText = String.format("%d items deleted", selectedPositions.size());
         Toast.makeText(mContext, notifyText, Toast.LENGTH_SHORT).show();
+        notifyDataSetChanged();
     }
 
     // delete all selfies, thumbNails and adapter list entries
     public void removeAllSelfies() {
         addAllToSelectionSet();
         removeSelectedSelfies();
-        notifyDataSetChanged();
     }
 }
