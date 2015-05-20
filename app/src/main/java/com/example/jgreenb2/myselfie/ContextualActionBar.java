@@ -96,7 +96,7 @@ public class ContextualActionBar  {
                 };
 
                 LocalBroadcastManager.getInstance(mContext).registerReceiver(this.receiveDeleteEvents,
-                        new IntentFilter("delete-selfie-event"));
+                        new IntentFilter("delete-selected-selfies-event"));
                 return true;
             }
 

@@ -44,7 +44,7 @@ public class MainActivity extends ActionBarActivity {
     static SelfieListAdapter mSelfieAdapter;
     static private ListView mListView;
     static private AlarmReceiver mAlarmReceiver;
-
+    BroadcastReceiver mReceiveDeleteEvents;
     static private Context mContext;
 
 
@@ -57,6 +57,17 @@ public class MainActivity extends ActionBarActivity {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.context_menu,menu);
+        mReceiveDeleteEvents = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                mSelfieAdapter.addItemToSelectionSet(mSelfieAdapter.getContextPos());
+                mSelfieAdapter.removeSelectedSelfies();
+                LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mReceiveDeleteEvents);
+            }
+        };
+
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mReceiveDeleteEvents,
+                new IntentFilter("delete-selected-selfies-event"));
     }
 
     @Override
@@ -65,7 +76,11 @@ public class MainActivity extends ActionBarActivity {
         int id = item.getItemId();
         switch (id) {
             case R.id.delete_single_selfie:
-                Toast.makeText(mContext,"deleting item "+mSelfieAdapter.getContextPos(),Toast.LENGTH_LONG).show();
+                ConfirmDeleteDialog dialog = new ConfirmDeleteDialog();
+                Bundle dialogParam = new Bundle();
+                dialogParam.putInt("nSelected", 1);
+                dialog.setArguments(dialogParam);
+                dialog.show(getFragmentManager(), "confirmDeleteDialog");
             break;
 
             case R.id.rename_selfie:
