@@ -90,13 +90,15 @@ public class ContextualActionBar  {
                 receiveDeleteEvents = new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
-                        mSelfieAdapter.removeSelectedSelfies();
-                        mode.finish();
+                        if (intent.getBooleanExtra("ExecuteDelete",false)) {
+                            mSelfieAdapter.removeSelectedSelfies();
+                            mode.finish();
+                        }
                     }
                 };
 
                 LocalBroadcastManager.getInstance(mContext).registerReceiver(this.receiveDeleteEvents,
-                        new IntentFilter("delete-selfie-event"));
+                        new IntentFilter("delete-selected-selfies-event"));
                 return true;
             }
 

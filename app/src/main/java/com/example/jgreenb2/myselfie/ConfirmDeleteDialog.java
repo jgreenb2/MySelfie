@@ -23,7 +23,7 @@ public class ConfirmDeleteDialog extends DialogFragment {
         Bundle dialogParams = getArguments();
         int nSelected = dialogParams.getInt("nSelected");
         String confirmMsg = String.format(
-                "About to delete %d items. This action cannot be undone. Ok to proceed?",
+                "About to delete %d item(s). This action cannot be undone. Ok to proceed?",
                 nSelected);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(inflater.inflate(R.layout.confirm_delete, null)).
@@ -31,13 +31,17 @@ public class ConfirmDeleteDialog extends DialogFragment {
                 setPositiveButton(R.string.ok_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent("delete-selfie-event");
+                        Intent intent = new Intent("delete-selected-selfies-event");
+                        intent.putExtra("ExecuteDelete",true);
                         LocalBroadcastManager.getInstance(getDialog().getContext()).sendBroadcast(intent);
                     }
                 }).
                 setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent("delete-selected-selfies-event");
+                        intent.putExtra("ExecuteDelete",false);
+                        LocalBroadcastManager.getInstance(getDialog().getContext()).sendBroadcast(intent);
                     }
                 });
 
