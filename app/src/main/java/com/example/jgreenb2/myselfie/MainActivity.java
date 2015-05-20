@@ -160,7 +160,8 @@ public class MainActivity extends ActionBarActivity {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.context_menu, menu);
-
+        SelfieItem item = (SelfieItem) mSelfieAdapter.getItem((int) v.getTag());
+        menu.setHeaderTitle(item.getLabel());
     }
 
     // handle floating context menu events
