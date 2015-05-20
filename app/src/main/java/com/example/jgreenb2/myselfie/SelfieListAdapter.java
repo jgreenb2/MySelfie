@@ -134,9 +134,10 @@ public class SelfieListAdapter extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 mContextPos = (int) v.getTag();
-                ((Activity) mContext).registerForContextMenu(v);
-                ((Activity) mContext).openContextMenu(v);
-                ((Activity) mContext).unregisterForContextMenu(v);
+                Activity activity = (Activity) mContext;
+                activity.registerForContextMenu(v);
+                activity.openContextMenu(v);
+                activity.unregisterForContextMenu(v);
             }
         });
         return row;

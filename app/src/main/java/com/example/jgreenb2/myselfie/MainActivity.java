@@ -52,54 +52,6 @@ public class MainActivity extends ActionBarActivity {
 
     static private int mThumbHeight, mThumbWidth;
 
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.context_menu, menu);
-
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-
-        int id = item.getItemId();
-        switch (id) {
-            case R.id.delete_single_selfie:
-                mReceiveDeleteEvents = new BroadcastReceiver() {
-                    @Override
-                    public void onReceive(Context context, Intent intent) {
-                        if (intent.hasExtra("ExecuteDelete")) {
-                            mSelfieAdapter.addItemToSelectionSet(mSelfieAdapter.getContextPos());
-                            mSelfieAdapter.removeSelectedSelfies();
-                        }
-                        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mReceiveDeleteEvents);
-                    }
-                };
-                LocalBroadcastManager.getInstance(mContext).registerReceiver(mReceiveDeleteEvents,
-                        new IntentFilter("delete-selected-selfies-event"));
-
-                ConfirmDeleteDialog dialog = new ConfirmDeleteDialog();
-                Bundle dialogParam = new Bundle();
-                dialogParam.putInt("nSelected", 1);
-                dialog.setArguments(dialogParam);
-                dialog.show(getFragmentManager(), "confirmDeleteDialog");
-            break;
-
-            case R.id.rename_selfie:
-                Toast.makeText(mContext,"rename item "+mSelfieAdapter.getContextPos(),Toast.LENGTH_LONG).show();
-            break;
-
-            case R.id.email_selfie:
-                Toast.makeText(mContext,"email item "+mSelfieAdapter.getContextPos(),Toast.LENGTH_LONG).show();
-            break;
-
-            default:
-                return false;
-
-        }
-        return true;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -202,6 +154,56 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    // create the floating context menu in each list item
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.context_menu, menu);
+
+    }
+
+    // handle floating context menu events
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.delete_single_selfie:
+                mReceiveDeleteEvents = new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        if (intent.getBooleanExtra("ExecuteDelete",false)) {
+                            mSelfieAdapter.addItemToSelectionSet(mSelfieAdapter.getContextPos());
+                            mSelfieAdapter.removeSelectedSelfies();
+                        }
+                        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mReceiveDeleteEvents);
+                    }
+                };
+                LocalBroadcastManager.getInstance(mContext).registerReceiver(mReceiveDeleteEvents,
+                        new IntentFilter("delete-selected-selfies-event"));
+
+                ConfirmDeleteDialog dialog = new ConfirmDeleteDialog();
+                Bundle dialogParam = new Bundle();
+                dialogParam.putInt("nSelected", 1);
+                dialog.setArguments(dialogParam);
+                dialog.show(getFragmentManager(), "confirmDeleteDialog");
+                break;
+
+            case R.id.rename_selfie:
+                Toast.makeText(mContext,"rename item "+mSelfieAdapter.getContextPos(),Toast.LENGTH_LONG).show();
+                break;
+
+            case R.id.email_selfie:
+                Toast.makeText(mContext,"email item "+mSelfieAdapter.getContextPos(),Toast.LENGTH_LONG).show();
+                break;
+
+            default:
+                return false;
+
+        }
+        return true;
+    }
     private void dispatchTakePictureIntent(String fileName) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent

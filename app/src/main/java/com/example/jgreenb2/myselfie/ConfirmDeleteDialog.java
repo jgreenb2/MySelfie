@@ -40,7 +40,7 @@ public class ConfirmDeleteDialog extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intent = new Intent("delete-selected-selfies-event");
-                        intent.putExtra("CancelDelete",true);
+                        intent.putExtra("ExecuteDelete",false);
                         LocalBroadcastManager.getInstance(getDialog().getContext()).sendBroadcast(intent);
                     }
                 });
