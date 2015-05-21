@@ -43,8 +43,25 @@
         android:background="@android:color/transparent"
         android:layout_centerVertical="true"
         android:ellipsize="end"
-        android:maxLines="1" />
-
+        android:maxLines="1"
+        android:visibility="visible"
+        android:clickable="true"/>
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="yyyyyyyyyyyyyyyyyyyyyyyyyy"
+        android:id="@+id/editPhotoDate"
+        android:layout_alignParentTop="false"
+        android:gravity="center_vertical|left"
+        android:textSize="18sp"
+        android:layout_toRightOf="@+id/thumbNailRoot"
+        android:layout_marginLeft="10dp"
+        android:background="@android:color/transparent"
+        android:layout_centerVertical="true"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:clickable="false"
+        android:visibility="gone"/>
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
