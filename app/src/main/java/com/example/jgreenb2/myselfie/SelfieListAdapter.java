@@ -2,28 +2,25 @@ package com.example.jgreenb2.myselfie;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
-import android.util.SparseBooleanArray;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Set;
 
 /**
  * Created by jgreenb2 on 4/23/15.
@@ -32,9 +29,11 @@ public class SelfieListAdapter extends BaseAdapter {
     private final Context mContext;
     private final List<SelfieItem> mItems = new ArrayList<>();
     private int mContextPos;
+    private ListView mListView;
 
-    public SelfieListAdapter(Context context) {
+    public SelfieListAdapter(Context context, ListView listView) {
         mContext = context;
+        mListView=listView;
     }
 
     // Clears the list adapter of all items.
@@ -105,7 +104,8 @@ public class SelfieListAdapter extends BaseAdapter {
             row = inflater.inflate(R.layout.photo_entry, null);
 
             holder = new ViewHolder();
-            holder.dateView = (TextView) row.findViewById(R.id.photoDate);
+            holder.labelView = (TextView) row.findViewById(R.id.photoLabel);
+            holder.editLabelView = (EditText) row.findViewById(R.id.editPhotoLabel);
             holder.imageView = (ImageView) row.findViewById(R.id.thumbNail);
             holder.checkView = (ImageView) row.findViewById(R.id.checkMark);
             holder.contextView = (ImageView) row.findViewById(R.id.contextMenu);
@@ -116,7 +116,7 @@ public class SelfieListAdapter extends BaseAdapter {
             holder = (ViewHolder) row.getTag();
         }
 
-        holder.dateView.setText(selfieItem.getLabel());
+        holder.labelView.setText(selfieItem.getLabel());
         holder.imageView.setImageBitmap(selfieItem.getThumb());
 
         if (isPositionChecked(position)) {
@@ -146,8 +146,10 @@ public class SelfieListAdapter extends BaseAdapter {
     private static class ViewHolder {
         public ImageView imageView;
         public ImageView checkView;
-        public TextView dateView;
+        public TextView labelView;
+        public EditText editLabelView;
         public ImageView contextView;
+
 
     }
 
@@ -258,5 +260,61 @@ public class SelfieListAdapter extends BaseAdapter {
     public void removeAllSelfies() {
         addAllToSelectionSet();
         removeSelectedSelfies();
+    }
+
+    static View getViewFromPosition(ListView listView,int position) {
+        int firstVisiblePosition = listView.getFirstVisiblePosition();
+        int viewPosition = position - firstVisiblePosition;
+        return listView.getChildAt(viewPosition);
+
+    }
+
+    public void switchToEditView(final int pos) {
+        View rootView = getViewFromPosition(mListView, pos);
+        TextView  labelView = (TextView) rootView.findViewById(R.id.photoLabel);
+        final EditText editView = (EditText) rootView.findViewById(R.id.editPhotoLabel);
+
+        labelView.setVisibility(View.GONE);
+        labelView.setClickable(false);
+
+        editView.setText(labelView.getText());
+        editView.setVisibility(View.VISIBLE);
+        editView.setClickable(true);
+        editView.selectAll();
+        editView.requestFocus();
+        final InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(editView, InputMethodManager.SHOW_IMPLICIT);
+
+        editView.setOnEditorActionListener(
+                new EditText.OnEditorActionListener() {
+                    @Override
+                    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                        if (actionId == EditorInfo.IME_ACTION_DONE ||
+                                event.getAction() == KeyEvent.ACTION_DOWN &&
+                                        event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                            if (!event.isShiftPressed()) {
+                                // the user is done typing.
+                                Toast.makeText(mContext, editView.getText(),Toast.LENGTH_LONG).show();
+                                switchToLabelView(pos);
+                                return true; // consume.
+                            }
+                        }
+                        return false; // pass on to other listeners.
+                    }
+                });
+        notifyDataSetChanged();
+    }
+
+    public void switchToLabelView(int pos) {
+        View rootView = getViewFromPosition(mListView,pos);
+        View labelView = rootView.findViewById(R.id.photoLabel);
+        View editView = rootView.findViewById(R.id.editPhotoLabel);
+
+        labelView.setVisibility(View.VISIBLE);
+        labelView.setClickable(true);
+
+        editView.setVisibility(View.GONE);
+        editView.setClickable(false);
+        notifyDataSetChanged();
     }
 }

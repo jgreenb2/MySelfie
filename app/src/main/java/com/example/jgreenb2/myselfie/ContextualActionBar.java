@@ -45,7 +45,7 @@ public class ContextualActionBar  {
 
             @Override
             public void onItemCheckedStateChanged(final ActionMode mode, final int position, long id, final boolean checked) {
-                final View itemView = getViewFromPosition(mListView, position);
+                final View itemView = SelfieListAdapter.getViewFromPosition(mListView, position);
                 final View rootView = itemView.findViewById(R.id.thumbNailRoot);
                 ImageView thumbView = (ImageView) rootView.findViewById(R.id.thumbNail);
                 ImageView checkView = (ImageView) rootView.findViewById(R.id.checkMark);
@@ -132,10 +132,4 @@ public class ContextualActionBar  {
     }
 
 
-    View getViewFromPosition(ListView listView,int position) {
-        int firstVisiblePosition = listView.getFirstVisiblePosition();
-        int viewPosition = position - firstVisiblePosition;
-        return listView.getChildAt(viewPosition);
-
-    }
 }

@@ -59,9 +59,9 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         mContext = getApplicationContext();
-        mSelfieAdapter = new SelfieListAdapter(MainActivity.this);
-
         mListView = (ListView) findViewById(R.id.listView);
+        mSelfieAdapter = new SelfieListAdapter(MainActivity.this,mListView);
+
         mListView.setAdapter(mSelfieAdapter);
 
         // set up an onClickListener
@@ -192,6 +192,7 @@ public class MainActivity extends ActionBarActivity {
                 break;
 
             case R.id.rename_selfie:
+                mSelfieAdapter.switchToEditView(mSelfieAdapter.getContextPos());
                 Toast.makeText(mContext,"rename item "+mSelfieAdapter.getContextPos(),Toast.LENGTH_LONG).show();
                 break;
 

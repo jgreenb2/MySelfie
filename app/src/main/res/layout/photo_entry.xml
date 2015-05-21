@@ -34,7 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="xxxxxxxxxxxxxxxxxxxxxxxx"
-        android:id="@+id/photoDate"
+        android:id="@+id/photoLabel"
         android:layout_alignParentTop="false"
         android:gravity="center_vertical|left"
         android:textSize="18sp"
@@ -50,7 +50,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="yyyyyyyyyyyyyyyyyyyyyyyyyy"
-        android:id="@+id/editPhotoDate"
+        android:id="@+id/editPhotoLabel"
         android:layout_alignParentTop="false"
         android:gravity="center_vertical|left"
         android:textSize="18sp"
@@ -61,6 +61,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:clickable="false"
+        android:focusable="true"
         android:visibility="gone"/>
     <ImageView
         android:layout_width="wrap_content"
