@@ -295,6 +295,7 @@ public class SelfieListAdapter extends BaseAdapter {
                             if (!event.isShiftPressed()) {
                                 // the user is done typing.
                                 Toast.makeText(mContext, editView.getText(),Toast.LENGTH_LONG).show();
+                                editView.clearFocus();
                                 switchToLabelView(pos);
                                 return true; // consume.
                             }

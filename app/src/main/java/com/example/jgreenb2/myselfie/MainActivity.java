@@ -63,6 +63,7 @@ public class MainActivity extends ActionBarActivity {
         mSelfieAdapter = new SelfieListAdapter(MainActivity.this,mListView);
 
         mListView.setAdapter(mSelfieAdapter);
+        mListView.setDescendantFocusability(ListView.FOCUS_AFTER_DESCENDANTS);
 
         // set up an onClickListener
         // a short click just opens a viewer for the image
