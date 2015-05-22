@@ -281,28 +281,30 @@ public class SelfieListAdapter extends BaseAdapter {
         editView.setVisibility(View.VISIBLE);
         editView.setClickable(true);
         editView.selectAll();
-        editView.requestFocus();
-        final InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(editView, InputMethodManager.SHOW_IMPLICIT);
+        if (editView.requestFocus()) {
+            final InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(editView, InputMethodManager.SHOW_IMPLICIT);
+            //imm.toggleSoftInput(0,0);
 
-        editView.setOnEditorActionListener(
-                new EditText.OnEditorActionListener() {
-                    @Override
-                    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                        if (actionId == EditorInfo.IME_ACTION_DONE ||
-                                event.getAction() == KeyEvent.ACTION_DOWN &&
-                                        event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                            if (!event.isShiftPressed()) {
-                                // the user is done typing.
-                                Toast.makeText(mContext, editView.getText(),Toast.LENGTH_LONG).show();
-                                editView.clearFocus();
-                                switchToLabelView(pos);
-                                return true; // consume.
+            editView.setOnEditorActionListener(
+                    new EditText.OnEditorActionListener() {
+                        @Override
+                        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                            if (actionId == EditorInfo.IME_ACTION_DONE ||
+                                    event.getAction() == KeyEvent.ACTION_DOWN &&
+                                            event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                                if (!event.isShiftPressed()) {
+                                    // the user is done typing.
+                                    Toast.makeText(mContext, editView.getText(), Toast.LENGTH_LONG).show();
+                                    editView.clearFocus();
+                                    switchToLabelView(pos);
+                                    return true; // consume.
+                                }
                             }
+                            return false; // pass on to other listeners.
                         }
-                        return false; // pass on to other listeners.
-                    }
-                });
+                    });
+        }
         notifyDataSetChanged();
     }
 

@@ -194,7 +194,7 @@ public class MainActivity extends ActionBarActivity {
 
             case R.id.rename_selfie:
                 mSelfieAdapter.switchToEditView(mSelfieAdapter.getContextPos());
-                Toast.makeText(mContext,"rename item "+mSelfieAdapter.getContextPos(),Toast.LENGTH_LONG).show();
+                //Toast.makeText(mContext,"rename item "+mSelfieAdapter.getContextPos(),Toast.LENGTH_LONG).show();
                 break;
 
             case R.id.email_selfie:
