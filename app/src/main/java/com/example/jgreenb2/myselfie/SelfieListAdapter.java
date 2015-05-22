@@ -275,31 +275,28 @@ public class SelfieListAdapter extends BaseAdapter {
         final EditText editView = (EditText) rootView.findViewById(R.id.editPhotoLabel);
 
         labelView.setVisibility(View.GONE);
-        labelView.setClickable(false);
 
         editView.setText(labelView.getText());
         editView.setVisibility(View.VISIBLE);
-        editView.setClickable(true);
+
         editView.selectAll();
         if (editView.requestFocus()) {
             final InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(editView, InputMethodManager.SHOW_IMPLICIT);
-            //imm.toggleSoftInput(0,0);
+            imm.toggleSoftInput(0,0);
 
             editView.setOnEditorActionListener(
                     new EditText.OnEditorActionListener() {
                         @Override
                         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                            if (actionId == EditorInfo.IME_ACTION_DONE ||
+                            if (actionId == EditorInfo.IME_ACTION_DONE || event == null ||
                                     event.getAction() == KeyEvent.ACTION_DOWN &&
                                             event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                                if (!event.isShiftPressed()) {
                                     // the user is done typing.
-                                    Toast.makeText(mContext, editView.getText(), Toast.LENGTH_LONG).show();
+                                    imm.toggleSoftInput(0,0);
+                                    Toast.makeText(mContext, v.getText(), Toast.LENGTH_LONG).show();
                                     editView.clearFocus();
                                     switchToLabelView(pos);
                                     return true; // consume.
-                                }
                             }
                             return false; // pass on to other listeners.
                         }
@@ -314,10 +311,7 @@ public class SelfieListAdapter extends BaseAdapter {
         View editView = rootView.findViewById(R.id.editPhotoLabel);
 
         labelView.setVisibility(View.VISIBLE);
-        labelView.setClickable(true);
-
         editView.setVisibility(View.GONE);
-        editView.setClickable(false);
         notifyDataSetChanged();
     }
 }
