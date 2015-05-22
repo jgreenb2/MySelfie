@@ -1,7 +1,12 @@
 package com.example.jgreenb2.myselfie;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -30,6 +35,7 @@ public class SelfieListAdapter extends BaseAdapter {
     private final List<SelfieItem> mItems = new ArrayList<>();
     private int mContextPos;
     private ListView mListView;
+    private BroadcastReceiver mReceiveRenameEvents;
 
     public SelfieListAdapter(Context context, ListView listView) {
         mContext = context;
@@ -271,7 +277,7 @@ public class SelfieListAdapter extends BaseAdapter {
 
     public void switchToEditView(final int pos) {
         View rootView = getViewFromPosition(mListView, pos);
-        TextView  labelView = (TextView) rootView.findViewById(R.id.photoLabel);
+        final TextView  labelView = (TextView) rootView.findViewById(R.id.photoLabel);
         final EditText editView = (EditText) rootView.findViewById(R.id.editPhotoLabel);
 
         labelView.setVisibility(View.GONE);
@@ -282,7 +288,7 @@ public class SelfieListAdapter extends BaseAdapter {
         editView.selectAll();
         if (editView.requestFocus()) {
             final InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.toggleSoftInput(0,0);
+            imm.toggleSoftInput(0, 0);
 
             editView.setOnEditorActionListener(
                     new EditText.OnEditorActionListener() {
@@ -292,10 +298,33 @@ public class SelfieListAdapter extends BaseAdapter {
                                     event.getAction() == KeyEvent.ACTION_DOWN &&
                                             event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
                                     // the user is done typing.
-                                    imm.toggleSoftInput(0,0);
+                                    //imm.toggleSoftInput(0,0);
+                                    imm.hideSoftInputFromWindow(v.getWindowToken(),0);
                                     Toast.makeText(mContext, v.getText(), Toast.LENGTH_LONG).show();
                                     editView.clearFocus();
                                     switchToLabelView(pos);
+                                    mReceiveRenameEvents = new BroadcastReceiver() {
+                                        @Override
+                                        public void onReceive(Context context, Intent intent) {
+                                            if (intent.getBooleanExtra("ExecuteRename",false)) {
+                                                Log.i(MainActivity.TAG, "rename");
+                                            } else {
+                                                Log.i(MainActivity.TAG, "don't rename");
+                                            }
+                                            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mReceiveRenameEvents);
+                                        }
+                                    };
+                                    LocalBroadcastManager.getInstance(mContext).registerReceiver(mReceiveRenameEvents,
+                                            new IntentFilter("rename-selected-selfies-event"));
+
+                                    ConfirmRenameDialog dialog = new ConfirmRenameDialog();
+                                    Bundle dialogParam = new Bundle();
+                                    String fromStr = labelView.getText().toString();
+                                    String toStr = v.getText().toString();
+                                    dialogParam.putString("from",fromStr);
+                                    dialogParam.putString("to",toStr);
+                                    dialog.setArguments(dialogParam);
+                                    dialog.show(((Activity) mContext).getFragmentManager(), "confirmRenameDialog");
                                     return true; // consume.
                             }
                             return false; // pass on to other listeners.

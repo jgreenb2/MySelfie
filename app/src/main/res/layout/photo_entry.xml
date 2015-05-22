@@ -62,7 +62,7 @@
         android:maxLines="1"
         android:clickable="false"
         android:focusable="true"
-        android:imeOptions="actionGo"
+        android:imeOptions="actionDone"
         android:inputType="text"
         android:visibility="gone"/>
     <ImageView
