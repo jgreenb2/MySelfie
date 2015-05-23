@@ -125,7 +125,8 @@ public class MainActivity extends ActionBarActivity {
             dispatchTakePictureIntent(mCurrentPhotoLabel);
             return true;
         } else if (id == R.id.delete_selfies) {
-            mSelfieAdapter.removeAllSelfies();
+            mSelfieAdapter.addAllToSelectionSet();
+            requestSelfieDeletions();
         } else if (id == R.id.cancel_alarm) {
             mAlarmReceiver.cancelSelfieAlarm();
             Toast.makeText(getApplicationContext(), "Alarms Cancelled!",
@@ -143,7 +144,6 @@ public class MainActivity extends ActionBarActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
-
                 SelfieItem newSelfie = new SelfieItem(mCurrentPhotoLabel, mCurrentPhotoPath,
                         mThumbHeight, mThumbWidth,mSharedPref);
                 if (newSelfie.getThumb() != null) {
@@ -156,7 +156,7 @@ public class MainActivity extends ActionBarActivity {
             } else {
                 // remove the file
                 File staleFile = new File(mCurrentPhotoPath);
-                staleFile.delete();
+                staleFile.delete();ixed fif
             }
         }
     }
@@ -178,24 +178,8 @@ public class MainActivity extends ActionBarActivity {
         int id = item.getItemId();
         switch (id) {
             case R.id.delete_single_selfie:
-                mReceiveDeleteEvents = new BroadcastReceiver() {
-                    @Override
-                    public void onReceive(Context context, Intent intent) {
-                        if (intent.getBooleanExtra("ExecuteDelete",false)) {
-                            mSelfieAdapter.addItemToSelectionSet(mSelfieAdapter.getContextPos());
-                            mSelfieAdapter.removeSelectedSelfies();
-                        }
-                        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mReceiveDeleteEvents);
-                    }
-                };
-                LocalBroadcastManager.getInstance(mContext).registerReceiver(mReceiveDeleteEvents,
-                        new IntentFilter("delete-selected-selfies-event"));
-
-                ConfirmDeleteDialog dialog = new ConfirmDeleteDialog();
-                Bundle dialogParam = new Bundle();
-                dialogParam.putInt("nSelected", 1);
-                dialog.setArguments(dialogParam);
-                dialog.show(getFragmentManager(), "confirmDeleteDialog");
+                mSelfieAdapter.addItemToSelectionSet(mSelfieAdapter.getContextPos());
+                requestSelfieDeletions();
                 break;
 
             case R.id.rename_selfie:
@@ -212,6 +196,29 @@ public class MainActivity extends ActionBarActivity {
         }
         return true;
     }
+
+    private void requestSelfieDeletions() {
+        mReceiveDeleteEvents = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getBooleanExtra("ExecuteDelete",false)) {
+                    mSelfieAdapter.removeSelectedSelfies();
+                } else {
+                    mSelfieAdapter.removeAllFromSelectionSet();
+                }
+                LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mReceiveDeleteEvents);
+            }
+        };
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mReceiveDeleteEvents,
+                new IntentFilter("delete-selected-selfies-event"));
+
+        ConfirmDeleteDialog dialog = new ConfirmDeleteDialog();
+        Bundle dialogParam = new Bundle();
+        dialogParam.putInt("nSelected", mSelfieAdapter.getNumberOfCheckedPositions());
+        dialog.setArguments(dialogParam);
+        dialog.show(getFragmentManager(), "confirmDeleteDialog");
+    }
+
     private void dispatchTakePictureIntent(String fileName) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
