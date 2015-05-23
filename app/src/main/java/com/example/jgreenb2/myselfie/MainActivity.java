@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Environment;
@@ -51,7 +52,7 @@ public class MainActivity extends ActionBarActivity {
     static final String TAG="Selfie_app";
 
     static private int mThumbHeight, mThumbWidth;
-
+    static private SharedPreferences mSharedPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +98,11 @@ public class MainActivity extends ActionBarActivity {
 
         mAlarmReceiver.setSelfieAlarm();
 
+        // use a key-value pref file to associate selfie filenames with
+        // display labels
+
+        mSharedPref = getPreferences(Context.MODE_PRIVATE);
+
     }
 
     @Override
@@ -139,7 +145,7 @@ public class MainActivity extends ActionBarActivity {
             if (resultCode == RESULT_OK) {
 
                 SelfieItem newSelfie = new SelfieItem(mCurrentPhotoLabel, mCurrentPhotoPath,
-                        mThumbHeight, mThumbWidth);
+                        mThumbHeight, mThumbWidth,mSharedPref);
                 if (newSelfie.getThumb() != null) {
                     mSelfieAdapter.add(newSelfie);
                     // restart the alarms
@@ -194,7 +200,6 @@ public class MainActivity extends ActionBarActivity {
 
             case R.id.rename_selfie:
                 mSelfieAdapter.switchToEditView(mSelfieAdapter.getContextPos());
-                //Toast.makeText(mContext,"rename item "+mSelfieAdapter.getContextPos(),Toast.LENGTH_LONG).show();
                 break;
 
             case R.id.email_selfie:
@@ -269,7 +274,7 @@ public class MainActivity extends ActionBarActivity {
                 String fName = f.getName();
 
                 SelfieItem newSelfie = new SelfieItem(fName, f.getAbsolutePath(),
-                                                      mThumbHeight,mThumbWidth);
+                                                      mThumbHeight,mThumbWidth,mSharedPref);
                 if (newSelfie.getThumb() != null) {
                     mSelfieAdapter.add(newSelfie);
                 }

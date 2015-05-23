@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -36,10 +37,12 @@ public class SelfieListAdapter extends BaseAdapter {
     private int mContextPos;
     private ListView mListView;
     private BroadcastReceiver mReceiveRenameEvents;
+    private SharedPreferences mSharedPreferences;
 
     public SelfieListAdapter(Context context, ListView listView) {
         mContext = context;
         mListView=listView;
+        mSharedPreferences = ((Activity) mContext).getPreferences(Context.MODE_PRIVATE);
     }
 
     // Clears the list adapter of all items.
@@ -246,6 +249,13 @@ public class SelfieListAdapter extends BaseAdapter {
         if (!thumbFile.delete()) {
             Log.i(MainActivity.TAG,"error deleting thumbNail |"+thumbPath+"|");
         }
+        // now remove any stored labels
+        String fileName = photoPath.substring(photoPath.lastIndexOf('/')+1);
+        if (mSharedPreferences.getString(fileName,"") != "") {
+            SharedPreferences.Editor editor = mSharedPreferences.edit();
+            editor.remove(fileName);
+            editor.commit();
+        }
     }
 
     // This method deletes all the selfie photos, thumbNails and
@@ -266,6 +276,9 @@ public class SelfieListAdapter extends BaseAdapter {
     public void removeAllSelfies() {
         addAllToSelectionSet();
         removeSelectedSelfies();
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.clear();
+        editor.commit();
     }
 
     static View getViewFromPosition(ListView listView,int position) {
@@ -294,23 +307,30 @@ public class SelfieListAdapter extends BaseAdapter {
                     new EditText.OnEditorActionListener() {
                         @Override
                         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                            if (actionId == EditorInfo.IME_ACTION_DONE || event == null ||
-                                    event.getAction() == KeyEvent.ACTION_DOWN &&
-                                            event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                            if (actionId == R.id.my_DONE_ID || actionId == EditorInfo.IME_NULL) {
                                     // the user is done typing.
                                     //imm.toggleSoftInput(0,0);
-                                    imm.hideSoftInputFromWindow(v.getWindowToken(),0);
-                                    Toast.makeText(mContext, v.getText(), Toast.LENGTH_LONG).show();
+                                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                                     editView.clearFocus();
-                                    switchToLabelView(pos);
+
                                     mReceiveRenameEvents = new BroadcastReceiver() {
                                         @Override
                                         public void onReceive(Context context, Intent intent) {
                                             if (intent.getBooleanExtra("ExecuteRename",false)) {
+                                                String newLabel = editView.getText().toString();
+                                                labelView.setText(newLabel);
                                                 Log.i(MainActivity.TAG, "rename");
+                                                SelfieItem selfieItem = (SelfieItem) getItem(pos);
+                                                selfieItem.setLabel(newLabel);
+                                                String fileName = selfieItem.getFileName();
+                                                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                                                editor.putString(fileName,newLabel);
+                                                editor.commit();
                                             } else {
+                                                editView.setText(labelView.getText());
                                                 Log.i(MainActivity.TAG, "don't rename");
                                             }
+                                            switchToLabelView(pos);
                                             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mReceiveRenameEvents);
                                         }
                                     };

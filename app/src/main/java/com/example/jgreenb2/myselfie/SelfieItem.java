@@ -1,6 +1,7 @@
 package com.example.jgreenb2.myselfie;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
@@ -39,7 +40,9 @@ public class SelfieItem {
         return mThumbPath;
     }
 
-
+    public void setLabel(String label) {
+        mLabel = label;
+    }
 
     public boolean isChecked() {
         return mIsChecked;
@@ -49,14 +52,24 @@ public class SelfieItem {
         this.mIsChecked = mIsChecked;
     }
 
-    public SelfieItem(String fileName, String photoPath, int thumbHeight, int thumbWidth) {
-        // parse the fileName
-        String[] labelComponents = fileName.split("_");
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMDD HHmmss", Locale.US);
-        Date date = sdf.parse(labelComponents[1]+" "+labelComponents[2], new ParsePosition(0));
-        DateFormat readableDate = DateFormat.getDateTimeInstance();
+    public SelfieItem(String fileName, String photoPath, int thumbHeight, int thumbWidth,
+                      SharedPreferences labelFile) {
+        String storedLabel = labelFile.getString(fileName,"");
+        if (storedLabel == "") {
+            // parse the fileName
+            String[] labelComponents = fileName.split("_");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMDD HHmmss", Locale.US);
+            Date date = sdf.parse(labelComponents[1] + " " + labelComponents[2], new ParsePosition(0));
+            DateFormat readableDate = DateFormat.getDateTimeInstance();
 
-        mLabel = readableDate.format(date);
+            mLabel = readableDate.format(date);
+            SharedPreferences.Editor editor =  labelFile.edit();
+            editor.putString(fileName,mLabel);
+            editor.commit();
+        } else {
+            mLabel = storedLabel;
+        }
+
         mPhotoPath = photoPath;
 
         Bitmap thumb = newThumb(thumbHeight, thumbWidth, photoPath);
@@ -70,6 +83,10 @@ public class SelfieItem {
 
     public String getLabel() {
         return mLabel;
+    }
+
+    public String getFileName() {
+        return mPhotoPath.substring(mPhotoPath.lastIndexOf('/')+1);
     }
 
     public Bitmap getThumb() {
