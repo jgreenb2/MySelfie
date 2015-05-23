@@ -1,5 +1,6 @@
 package com.example.jgreenb2.myselfie;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -40,7 +41,12 @@ public class SelfieItem {
         return mThumbPath;
     }
 
-    public void setLabel(String label) {
+    public void setLabel(String label, SharedPreferences labelFile) {
+        String fileName = getFileName();
+        mLabel = formatFileToLabel(fileName);
+        SharedPreferences.Editor editor =  labelFile.edit();
+        editor.putString(fileName,mLabel);
+        editor.commit();
         mLabel = label;
     }
 
@@ -56,13 +62,7 @@ public class SelfieItem {
                       SharedPreferences labelFile) {
         String storedLabel = labelFile.getString(fileName,"");
         if (storedLabel == "") {
-            // parse the fileName
-            String[] labelComponents = fileName.split("_");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMDD HHmmss", Locale.US);
-            Date date = sdf.parse(labelComponents[1] + " " + labelComponents[2], new ParsePosition(0));
-            DateFormat readableDate = DateFormat.getDateTimeInstance();
-
-            mLabel = readableDate.format(date);
+            mLabel = formatFileToLabel(fileName);
             SharedPreferences.Editor editor =  labelFile.edit();
             editor.putString(fileName,mLabel);
             editor.commit();
@@ -79,6 +79,15 @@ public class SelfieItem {
             mThumb = null;
         }
         mIsChecked = false;
+    }
+
+    static public String formatFileToLabel(String fileName) {
+        String[] labelComponents = fileName.split("_");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMDD HHmmss", Locale.US);
+        Date date = sdf.parse(labelComponents[1] + " " + labelComponents[2], new ParsePosition(0));
+        DateFormat readableDate = DateFormat.getDateTimeInstance();
+
+        return readableDate.format(date);
     }
 
     public String getLabel() {

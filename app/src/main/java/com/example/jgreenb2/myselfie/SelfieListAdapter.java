@@ -323,15 +323,9 @@ public class SelfieListAdapter extends BaseAdapter {
                                                 String newLabel = editView.getText().toString();
                                                 labelView.setText(newLabel);
                                                 SelfieItem selfieItem = (SelfieItem) getItem(pos);
-                                                selfieItem.setLabel(newLabel);
-                                                String fileName = selfieItem.getFileName();
-                                                SharedPreferences.Editor editor = mSharedPreferences.edit();
-                                                editor.putString(fileName,newLabel);
-                                                editor.commit();
-                                                Log.i(MainActivity.TAG, "rename");
+                                                selfieItem.setLabel(newLabel, mSharedPreferences);
                                             } else {
                                                 editView.setText(labelView.getText());
-                                                Log.i(MainActivity.TAG, "don't rename");
                                             }
                                             switchToLabelView(pos);
                                             LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mReceiveRenameEvents);

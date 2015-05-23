@@ -190,6 +190,14 @@ public class MainActivity extends ActionBarActivity {
                 Toast.makeText(mContext,"email item "+mSelfieAdapter.getContextPos(),Toast.LENGTH_LONG).show();
                 break;
 
+            case R.id.reset_self_name:
+                int pos = mSelfieAdapter.getContextPos();
+                SelfieItem selfieItem = (SelfieItem) mSelfieAdapter.getItem(pos);
+                String label = SelfieItem.formatFileToLabel(selfieItem.getFileName());
+                selfieItem.setLabel(label, mSharedPref);
+                mSelfieAdapter.notifyDataSetChanged();
+                break;
+
             default:
                 return false;
 
