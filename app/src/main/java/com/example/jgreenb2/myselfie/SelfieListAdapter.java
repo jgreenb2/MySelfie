@@ -307,7 +307,7 @@ public class SelfieListAdapter extends BaseAdapter {
                     new EditText.OnEditorActionListener() {
                         @Override
                         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                            if (actionId == R.id.my_DONE_ID ||
+                            if (actionId == R.id.my_DONE_ID || event == null ||
                                 (actionId == EditorInfo.IME_NULL &&
                                         event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
                                         event.getAction()==KeyEvent.ACTION_DOWN)) {
