@@ -156,7 +156,7 @@ public class MainActivity extends ActionBarActivity {
             } else {
                 // remove the file
                 File staleFile = new File(mCurrentPhotoPath);
-                staleFile.delete();ixed fif
+                staleFile.delete();
             }
         }
     }
