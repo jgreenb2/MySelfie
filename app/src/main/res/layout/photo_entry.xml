@@ -45,7 +45,8 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:visibility="visible"
-        android:clickable="false"/>
+        android:clickable="false"
+        android:layout_toStartOf="@+id/contextMenu" />
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -66,7 +67,8 @@
         android:imeActionId="@+id/my_DONE_ID"
         android:imeActionLabel="Done"
         android:inputType="textNoSuggestions"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:layout_toStartOf="@+id/contextMenu" />
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -250,7 +250,7 @@ public class SelfieListAdapter extends BaseAdapter {
             Log.i(MainActivity.TAG,"error deleting thumbNail |"+thumbPath+"|");
         }
         // now remove any stored labels
-        String fileName = photoPath.substring(photoPath.lastIndexOf('/')+1);
+        String fileName = selfieItem.getFileName();
         if (mSharedPreferences.getString(fileName,"") != "") {
             SharedPreferences.Editor editor = mSharedPreferences.edit();
             editor.remove(fileName);
@@ -307,7 +307,10 @@ public class SelfieListAdapter extends BaseAdapter {
                     new EditText.OnEditorActionListener() {
                         @Override
                         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                            if (actionId == R.id.my_DONE_ID || actionId == EditorInfo.IME_NULL) {
+                            if (actionId == R.id.my_DONE_ID ||
+                                (actionId == EditorInfo.IME_NULL &&
+                                        event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
+                                        event.getAction()==KeyEvent.ACTION_DOWN)) {
                                     // the user is done typing.
                                     //imm.toggleSoftInput(0,0);
                                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
@@ -319,13 +322,13 @@ public class SelfieListAdapter extends BaseAdapter {
                                             if (intent.getBooleanExtra("ExecuteRename",false)) {
                                                 String newLabel = editView.getText().toString();
                                                 labelView.setText(newLabel);
-                                                Log.i(MainActivity.TAG, "rename");
                                                 SelfieItem selfieItem = (SelfieItem) getItem(pos);
                                                 selfieItem.setLabel(newLabel);
                                                 String fileName = selfieItem.getFileName();
                                                 SharedPreferences.Editor editor = mSharedPreferences.edit();
                                                 editor.putString(fileName,newLabel);
                                                 editor.commit();
+                                                Log.i(MainActivity.TAG, "rename");
                                             } else {
                                                 editView.setText(labelView.getText());
                                                 Log.i(MainActivity.TAG, "don't rename");
