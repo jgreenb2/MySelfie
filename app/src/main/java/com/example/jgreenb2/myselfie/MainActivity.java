@@ -29,7 +29,11 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -47,7 +51,6 @@ public class MainActivity extends ActionBarActivity {
     static private AlarmReceiver mAlarmReceiver;
     BroadcastReceiver mReceiveDeleteEvents;
     static private Context mContext;
-
 
     static final String TAG="Selfie_app";
 
@@ -176,23 +179,30 @@ public class MainActivity extends ActionBarActivity {
     public boolean onContextItemSelected(MenuItem item) {
 
         int id = item.getItemId();
+        int pos = mSelfieAdapter.getContextPos();
+        SelfieItem selfieItem = (SelfieItem) mSelfieAdapter.getItem(pos);
         switch (id) {
             case R.id.delete_single_selfie:
-                mSelfieAdapter.addItemToSelectionSet(mSelfieAdapter.getContextPos());
+                mSelfieAdapter.addItemToSelectionSet(pos);
                 requestSelfieDeletions();
                 break;
 
             case R.id.rename_selfie:
-                mSelfieAdapter.switchToEditView(mSelfieAdapter.getContextPos());
+                mSelfieAdapter.switchToEditView(pos);
                 break;
 
             case R.id.email_selfie:
-                Toast.makeText(mContext,"email item "+mSelfieAdapter.getContextPos(),Toast.LENGTH_LONG).show();
+                File attachment = new File(selfieItem.getPhotoPath());
+                attachment.setReadable(true,false);
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("image/jpeg");
+                intent.putExtra(Intent.EXTRA_SUBJECT, "Want to see my selfies?");
+                intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:/" + attachment.getAbsolutePath()));
+                startActivity(intent);
+                //Toast.makeText(mContext,"email item "+mSelfieAdapter.getContextPos(),Toast.LENGTH_LONG).show();
                 break;
 
             case R.id.reset_self_name:
-                int pos = mSelfieAdapter.getContextPos();
-                SelfieItem selfieItem = (SelfieItem) mSelfieAdapter.getItem(pos);
                 String label = SelfieItem.formatFileToLabel(selfieItem.getFileName());
                 selfieItem.setLabel(label, mSharedPref);
                 mSelfieAdapter.notifyDataSetChanged();
@@ -296,5 +306,4 @@ public class MainActivity extends ActionBarActivity {
             }
         }
     }
-
 }
