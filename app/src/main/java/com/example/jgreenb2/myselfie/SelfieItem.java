@@ -43,7 +43,7 @@ public class SelfieItem {
 
     public void setLabel(String label, SharedPreferences labelFile) {
         String fileName = getFileName();
-        mLabel = formatFileToLabel(fileName);
+        mLabel = label;
         SharedPreferences.Editor editor =  labelFile.edit();
         editor.putString(fileName,mLabel);
         editor.commit();
@@ -62,10 +62,7 @@ public class SelfieItem {
                       SharedPreferences labelFile) {
         String storedLabel = labelFile.getString(fileName,"");
         if (storedLabel == "") {
-            mLabel = formatFileToLabel(fileName);
-            SharedPreferences.Editor editor =  labelFile.edit();
-            editor.putString(fileName,mLabel);
-            editor.commit();
+            setLabel(formatFileToLabel(fileName),labelFile);
         } else {
             mLabel = storedLabel;
         }
