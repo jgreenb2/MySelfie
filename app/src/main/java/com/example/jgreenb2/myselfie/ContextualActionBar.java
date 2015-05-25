@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.ActionMode;
@@ -18,6 +19,9 @@ import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.ListView;
 
+import java.io.File;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -36,8 +40,6 @@ public class ContextualActionBar  {
         mContext = activity.getApplicationContext();
         mListView = listView;
         mSelfieAdapter = (SelfieListAdapter) mListView.getAdapter();
-
-
 
         mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         mListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
@@ -116,6 +118,19 @@ public class ContextualActionBar  {
                         dialogParam.putInt("nSelected", mSelfieAdapter.getNumberOfCheckedPositions());
                         mDialog.setArguments(dialogParam);
                         mDialog.show(activity.getFragmentManager(), "confirmDeleteDialog");
+                        return true;
+                    case R.id.cab_send:
+                        ArrayList<String> attachments = mSelfieAdapter.getSelectedPaths();
+                        ArrayList<Uri> uris= new ArrayList<Uri>();
+                        for (String s : attachments) {
+                            uris.add(Uri.parse("file:/" + s));
+                            File file = new File(s);
+                            file.setReadable(true, false);
+                        }
+                        Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+                        intent.setType("image/jpeg");
+                        intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+                        activity.startActivity(intent);
                         return true;
                     default:
                         return false;

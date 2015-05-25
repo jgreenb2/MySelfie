@@ -32,10 +32,29 @@ public class SelfieItem {
     static public final String THUMB_DIR = "thumbs";
     private final int QUALITY=75;
 
+    public SelfieItem(String fileName, String photoPath, int thumbHeight, int thumbWidth,
+                      SharedPreferences labelFile) {
+        String storedLabel = labelFile.getString(fileName,"");
+        if (storedLabel == "") {
+            setLabel(formatFileToLabel(fileName),labelFile);
+        } else {
+            mLabel = storedLabel;
+        }
+
+        mPhotoPath = photoPath;
+
+        Bitmap thumb = newThumb(thumbHeight, thumbWidth, photoPath);
+        if (thumb != null) {
+            mThumb = Bitmap.createBitmap(thumb);
+        } else {
+            mThumb = null;
+        }
+        mIsChecked = false;
+    }
+
     public String getPhotoPath() {
         return mPhotoPath;
     }
-
 
     public String getThumbPath() {
         return mThumbPath;
@@ -56,26 +75,6 @@ public class SelfieItem {
 
     public void setChecked(boolean mIsChecked) {
         this.mIsChecked = mIsChecked;
-    }
-
-    public SelfieItem(String fileName, String photoPath, int thumbHeight, int thumbWidth,
-                      SharedPreferences labelFile) {
-        String storedLabel = labelFile.getString(fileName,"");
-        if (storedLabel == "") {
-            setLabel(formatFileToLabel(fileName),labelFile);
-        } else {
-            mLabel = storedLabel;
-        }
-
-        mPhotoPath = photoPath;
-
-        Bitmap thumb = newThumb(thumbHeight, thumbWidth, photoPath);
-        if (thumb != null) {
-            mThumb = Bitmap.createBitmap(thumb);
-        } else {
-            mThumb = null;
-        }
-        mIsChecked = false;
     }
 
     static public String formatFileToLabel(String fileName) {
