@@ -19,6 +19,11 @@
             </intent-filter>
         </activity>
 
+        <provider
+            android:authorities="com.jgreenb2.gmailattach.provider"
+            android:name=".JpegContentProvider"
+            android:grantUriPermissions="true"
+            />
 
         <receiver android:name=".AlarmReceiver" >
         </receiver>

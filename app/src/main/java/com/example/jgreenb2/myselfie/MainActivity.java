@@ -197,7 +197,8 @@ public class MainActivity extends ActionBarActivity {
                 Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.setType("image/jpeg");
                 intent.putExtra(Intent.EXTRA_SUBJECT, "Want to see my selfies?");
-                intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:/" + attachment.getAbsolutePath()));
+                intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("content://" + JpegContentProvider.AUTHORITY +
+                        "/"+attachment.getAbsolutePath()));
                 startActivity(intent);
                 //Toast.makeText(mContext,"email item "+mSelfieAdapter.getContextPos(),Toast.LENGTH_LONG).show();
                 break;
