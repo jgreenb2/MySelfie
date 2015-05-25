@@ -1,23 +1,39 @@
 package com.example.jgreenb2.myselfie;
-
+/*
+    5/7/15 -- adding contextual action bar
+ */
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ActionMode;
+import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -25,6 +41,7 @@ import java.util.Date;
 public class MainActivity extends ActionBarActivity {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 1;
+
     static String mCurrentPhotoPath;
     static String mCurrentPhotoLabel;
 
@@ -32,24 +49,28 @@ public class MainActivity extends ActionBarActivity {
     static SelfieListAdapter mSelfieAdapter;
     static private ListView mListView;
     static private AlarmReceiver mAlarmReceiver;
-
+    BroadcastReceiver mReceiveDeleteEvents;
     static private Context mContext;
-    static final private String TAG="Selfie_app";
+
+    static final String TAG="Selfie_app";
 
     static private int mThumbHeight, mThumbWidth;
+    static private SharedPreferences mSharedPref;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         mContext = getApplicationContext();
-
-        mSelfieAdapter = new SelfieListAdapter(MainActivity.this);
-
         mListView = (ListView) findViewById(R.id.listView);
+        mSelfieAdapter = new SelfieListAdapter(MainActivity.this,mListView);
+
         mListView.setAdapter(mSelfieAdapter);
+        mListView.setDescendantFocusability(ListView.FOCUS_AFTER_DESCENDANTS);
 
         // set up an onClickListener
+        // a short click just opens a viewer for the image
         mListView.setClickable(true);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -57,7 +78,7 @@ public class MainActivity extends ActionBarActivity {
                 SelfieItem selfieItem = (SelfieItem) mSelfieAdapter.getItem(position);
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.parse("file:" + selfieItem.getPhotoPath()),"image/*");
+                intent.setDataAndType(Uri.parse("file:" + selfieItem.getPhotoPath()), "image/*");
                 if (intent.resolveActivity(getPackageManager()) != null) {
                     startActivity(intent);
                 } else {
@@ -65,7 +86,11 @@ public class MainActivity extends ActionBarActivity {
                             Toast.LENGTH_LONG).show();
                 }
             }
-        } );
+        });
+
+        // setup the Contextual Action Bar to allow multiple objects to
+        // be selected and deleted
+        new ContextualActionBar(this,mListView);
 
         Resources resources = getResources();
 
@@ -75,8 +100,13 @@ public class MainActivity extends ActionBarActivity {
         mAlarmReceiver = new AlarmReceiver(MainActivity.this);
 
         mAlarmReceiver.setSelfieAlarm();
-    }
 
+        // use a key-value pref file to associate selfie filenames with
+        // display labels
+
+        mSharedPref = getPreferences(Context.MODE_PRIVATE);
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -92,17 +122,14 @@ public class MainActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_selfie) {
             mCurrentPhotoLabel = createImageFileName();
             Log.i(TAG, "label=|" + mCurrentPhotoLabel + "|");
             dispatchTakePictureIntent(mCurrentPhotoLabel);
             return true;
         } else if (id == R.id.delete_selfies) {
-            SelfieItem.removeSelfies(mContext);
-            mSelfieAdapter.clear();
-            Toast.makeText(getApplicationContext(), "Selfie's Removed!",
-                    Toast.LENGTH_LONG).show();
+            mSelfieAdapter.addAllToSelectionSet();
+            requestSelfieDeletions();
         } else if (id == R.id.cancel_alarm) {
             mAlarmReceiver.cancelSelfieAlarm();
             Toast.makeText(getApplicationContext(), "Alarms Cancelled!",
@@ -120,9 +147,8 @@ public class MainActivity extends ActionBarActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
-
                 SelfieItem newSelfie = new SelfieItem(mCurrentPhotoLabel, mCurrentPhotoPath,
-                        mThumbHeight, mThumbWidth);
+                        mThumbHeight, mThumbWidth,mSharedPref);
                 if (newSelfie.getThumb() != null) {
                     mSelfieAdapter.add(newSelfie);
                     // restart the alarms
@@ -136,6 +162,79 @@ public class MainActivity extends ActionBarActivity {
                 staleFile.delete();
             }
         }
+    }
+
+    // create the floating context menu in each list item
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.context_menu, menu);
+        SelfieItem item = (SelfieItem) mSelfieAdapter.getItem((int) v.getTag());
+        menu.setHeaderTitle(item.getLabel());
+    }
+
+    // handle floating context menu events
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+        int pos = mSelfieAdapter.getContextPos();
+        SelfieItem selfieItem = (SelfieItem) mSelfieAdapter.getItem(pos);
+        switch (id) {
+            case R.id.delete_single_selfie:
+                mSelfieAdapter.addItemToSelectionSet(pos);
+                requestSelfieDeletions();
+                break;
+
+            case R.id.rename_selfie:
+                mSelfieAdapter.switchToEditView(pos);
+                break;
+
+            case R.id.email_selfie:
+                File attachment = new File(selfieItem.getPhotoPath());
+                attachment.setReadable(true,false);
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("image/jpeg");
+                intent.putExtra(Intent.EXTRA_SUBJECT, "Want to see my selfies?");
+                intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:/" + attachment.getAbsolutePath()));
+                startActivity(intent);
+                //Toast.makeText(mContext,"email item "+mSelfieAdapter.getContextPos(),Toast.LENGTH_LONG).show();
+                break;
+
+            case R.id.reset_self_name:
+                String label = SelfieItem.formatFileToLabel(selfieItem.getFileName());
+                selfieItem.setLabel(label, mSharedPref);
+                mSelfieAdapter.notifyDataSetChanged();
+                break;
+
+            default:
+                return false;
+
+        }
+        return true;
+    }
+
+    private void requestSelfieDeletions() {
+        mReceiveDeleteEvents = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getBooleanExtra("ExecuteDelete",false)) {
+                    mSelfieAdapter.removeSelectedSelfies();
+                } else {
+                    mSelfieAdapter.removeAllFromSelectionSet();
+                }
+                LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mReceiveDeleteEvents);
+            }
+        };
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mReceiveDeleteEvents,
+                new IntentFilter("delete-selected-selfies-event"));
+
+        ConfirmDeleteDialog dialog = new ConfirmDeleteDialog();
+        Bundle dialogParam = new Bundle();
+        dialogParam.putInt("nSelected", mSelfieAdapter.getNumberOfCheckedPositions());
+        dialog.setArguments(dialogParam);
+        dialog.show(getFragmentManager(), "confirmDeleteDialog");
     }
 
     private void dispatchTakePictureIntent(String fileName) {
@@ -200,13 +299,11 @@ public class MainActivity extends ActionBarActivity {
                 String fName = f.getName();
 
                 SelfieItem newSelfie = new SelfieItem(fName, f.getAbsolutePath(),
-                                                      mThumbHeight,mThumbWidth);
+                                                      mThumbHeight,mThumbWidth,mSharedPref);
                 if (newSelfie.getThumb() != null) {
                     mSelfieAdapter.add(newSelfie);
                 }
             }
         }
     }
-
-
 }

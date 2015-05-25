@@ -28,7 +28,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     private boolean mAlarmsEnabled=true;
 
-    private static final long SELFIE_INTERVAL = 2 * 60 * 1000L;
+    private static final long SELFIE_INTERVAL = 60 * 60 * 1000L;
 
     private static Context mActivityContext;
 

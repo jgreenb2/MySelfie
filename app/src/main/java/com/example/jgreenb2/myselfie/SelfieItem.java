@@ -1,9 +1,12 @@
 package com.example.jgreenb2.myselfie;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
+import android.view.animation.Animation;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,26 +23,24 @@ import java.util.Locale;
  */
 public class SelfieItem {
 
-    private String mLabel = new String();
-    private String mPhotoPath = new String();
-
-    static private final String THUMB_DIR = "thumbs";
-    private final int QUALITY=75;
-
-    public String getPhotoPath() {
-        return mPhotoPath;
-    }
-
+    private String mLabel;
+    private String mPhotoPath;
+    private String mThumbPath;
+    private boolean mIsChecked;
     private Bitmap mThumb;
 
-    public SelfieItem(String fileName, String photoPath, int thumbHeight, int thumbWidth) {
-        // parse the fileName
-        String[] labelComponents = fileName.split("_");
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMDD HHmmss", Locale.US);
-        Date date = sdf.parse(labelComponents[1]+" "+labelComponents[2], new ParsePosition(0));
-        DateFormat readableDate = DateFormat.getDateTimeInstance();
+    static public final String THUMB_DIR = "thumbs";
+    private final int QUALITY=75;
 
-        mLabel = readableDate.format(date);
+    public SelfieItem(String fileName, String photoPath, int thumbHeight, int thumbWidth,
+                      SharedPreferences labelFile) {
+        String storedLabel = labelFile.getString(fileName,"");
+        if (storedLabel == "") {
+            setLabel(formatFileToLabel(fileName),labelFile);
+        } else {
+            mLabel = storedLabel;
+        }
+
         mPhotoPath = photoPath;
 
         Bitmap thumb = newThumb(thumbHeight, thumbWidth, photoPath);
@@ -48,10 +49,49 @@ public class SelfieItem {
         } else {
             mThumb = null;
         }
+        mIsChecked = false;
+    }
+
+    public String getPhotoPath() {
+        return mPhotoPath;
+    }
+
+    public String getThumbPath() {
+        return mThumbPath;
+    }
+
+    public void setLabel(String label, SharedPreferences labelFile) {
+        String fileName = getFileName();
+        mLabel = label;
+        SharedPreferences.Editor editor =  labelFile.edit();
+        editor.putString(fileName,mLabel);
+        editor.commit();
+        mLabel = label;
+    }
+
+    public boolean isChecked() {
+        return mIsChecked;
+    }
+
+    public void setChecked(boolean mIsChecked) {
+        this.mIsChecked = mIsChecked;
+    }
+
+    static public String formatFileToLabel(String fileName) {
+        String[] labelComponents = fileName.split("_");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMDD HHmmss", Locale.US);
+        Date date = sdf.parse(labelComponents[1] + " " + labelComponents[2], new ParsePosition(0));
+        DateFormat readableDate = DateFormat.getDateTimeInstance();
+
+        return readableDate.format(date);
     }
 
     public String getLabel() {
         return mLabel;
+    }
+
+    public String getFileName() {
+        return mPhotoPath.substring(mPhotoPath.lastIndexOf('/')+1);
     }
 
     public Bitmap getThumb() {
@@ -73,15 +113,16 @@ public class SelfieItem {
         }
 
         // if the thumbnail already exists just read it in
-        String thumbName = thumbDirName+"/"+fileName;
-        File thumbNail = new File(thumbName);
+        String thumbPath = thumbDirName+"/"+fileName;
+        mThumbPath = thumbPath;
+        File thumbNail = new File(thumbPath);
         Bitmap thumb;
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
 
 
         if (thumbNail.exists()) {
             bmOptions.inJustDecodeBounds = false;
-            thumb=BitmapFactory.decodeFile(thumbName, bmOptions);
+            thumb=BitmapFactory.decodeFile(thumbPath, bmOptions);
             if (thumb==null) {
                 // if the thumbNail is corrupt delete it and try to recreate it
                 thumbNail.delete();
@@ -125,26 +166,5 @@ public class SelfieItem {
             }
         }
         return thumb;
-    }
-    // static method for removing all the selfies
-    static public void removeSelfies(Context context) {
-
-        // delete the image files
-        File storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        String storageDirAbsolutePath = storageDir.getAbsolutePath();
-        String thumbPath = storageDirAbsolutePath+"/../"+THUMB_DIR;
-        File[] files = new File(storageDirAbsolutePath).listFiles();
-
-        for (File f : files) {
-            f.delete();
-        }
-        // now delete the thumbNails
-        File thumbDir= new File(thumbPath);
-        files = thumbDir.listFiles();
-        for (File f : files) {
-            f.delete();
-        }
-        thumbDir.delete();
-
     }
 }
