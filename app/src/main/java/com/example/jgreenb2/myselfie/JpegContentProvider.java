@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
@@ -23,7 +24,7 @@ public class JpegContentProvider extends ContentProvider {
     private static final String CLASS_NAME = "JpegContentProvider";
 
     // The authority is the symbolic name for the provider class
-    public static final String AUTHORITY = "com.jgreenb2.gmailattach.provider";
+    public static final String AUTHORITY = "com.jgreenb2.selfieattach.provider";
 
     // UriMatcher used to match against incoming requests
     private UriMatcher uriMatcher;
@@ -60,8 +61,11 @@ public class JpegContentProvider extends ContentProvider {
                 // E.g.
                 // 'content://com.stephendnicholas.gmailattach.provider/Test.txt'
                 // Take this and build the path to the file
-                String fileLocation = getContext().getCacheDir() + File.separator
-                        + uri.getLastPathSegment();
+//                String fileLocation = getContext().getCacheDir() + File.separator
+//                        + uri.getLastPathSegment();
+
+                String fileLocation = getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath()
+                                      + File.separator + uri.getLastPathSegment();
 
                 // Create & return a ParcelFileDescriptor pointing to the file
                 // Note: I don't care what mode they ask for - they're only getting

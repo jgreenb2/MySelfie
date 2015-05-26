@@ -199,8 +199,8 @@ public class MainActivity extends ActionBarActivity {
                      Intent intent = new Intent(Intent.ACTION_SEND);
                      intent.setType("image/jpeg");
                      intent.putExtra(Intent.EXTRA_SUBJECT, "Want to see my selfies?");
-                     intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("content://" + JpegContentProvider.AUTHORITY +
-                             "/" + attachment.getAbsolutePath()));
+                     intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("content://" + JpegContentProvider.AUTHORITY + File.separator +
+                             selfieItem.getFileName()));
                      intent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
 
                      startActivity(intent);

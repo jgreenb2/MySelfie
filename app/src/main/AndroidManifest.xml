@@ -20,7 +20,7 @@
         </activity>
 
         <provider
-            android:authorities="com.jgreenb2.gmailattach.provider"
+            android:authorities="com.jgreenb2.selfieattach.provider"
             android:name=".JpegContentProvider"
             android:grantUriPermissions="true"
             />
