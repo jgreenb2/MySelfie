@@ -4,9 +4,11 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
+import android.provider.OpenableColumns;
 import android.util.Log;
 
 import java.io.File;
@@ -64,8 +66,7 @@ public class JpegContentProvider extends ContentProvider {
 //                String fileLocation = getContext().getCacheDir() + File.separator
 //                        + uri.getLastPathSegment();
 
-                String fileLocation = getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath()
-                                      + File.separator + uri.getLastPathSegment();
+                String fileLocation = getStoragePath() + File.separator + uri.getLastPathSegment();
 
                 // Create & return a ParcelFileDescriptor pointing to the file
                 // Note: I don't care what mode they ask for - they're only getting
@@ -102,14 +103,43 @@ public class JpegContentProvider extends ContentProvider {
         return null;
     }
 
+    /*  Thanks Paul Dingemans comment at http://stephendnicholas.com/archives/974
+        for these two methods. I couldn't figure out how to override the query
+        without his help!
+     */
     @Override
     public String getType(Uri uri) {
-        return null;
+        switch (uriMatcher.match(uri)) {
+        // If it returns 1 - then it matches the Uri defined in onCreate
+            case 1:
+                return "image/jpeg"; // Use an appropriate mime type here
+            default:
+                return null;
+        }
+    }
+    @Override
+    public Cursor query(Uri uri, String[] arg1, String arg2, String[] arg3,
+                        String arg4) {
+        switch (uriMatcher.match(uri)) {
+            // If it returns 1 - then it matches the Uri defined in onCreate
+            case 1:
+                MatrixCursor cursor = null;
+                File file = new File( getStoragePath() + File.separator
+                        + uri.getLastPathSegment());
+                if (file.exists()) {
+                    cursor = new MatrixCursor(new String[] {
+                            OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE });
+                    cursor.addRow(new Object[] { uri.getLastPathSegment(),
+                            file.length() });
+                }
+
+                return cursor;
+            default:
+                return null;
+        }
     }
 
-    @Override
-    public Cursor query(Uri uri, String[] projection, String s, String[] as1,
-                        String s1) {
-        return null;
+    private String getStoragePath() {
+        return getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath();
     }
 }

@@ -34,14 +34,13 @@ public class SelfieItem {
 
     public SelfieItem(String fileName, String photoPath, int thumbHeight, int thumbWidth,
                       SharedPreferences labelFile) {
+        mPhotoPath = photoPath;
         String storedLabel = labelFile.getString(fileName,"");
         if (storedLabel == "") {
             setLabel(formatFileToLabel(fileName),labelFile);
         } else {
             mLabel = storedLabel;
         }
-
-        mPhotoPath = photoPath;
 
         Bitmap thumb = newThumb(thumbHeight, thumbWidth, photoPath);
         if (thumb != null) {

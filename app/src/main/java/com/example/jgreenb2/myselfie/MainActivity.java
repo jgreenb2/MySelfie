@@ -194,25 +194,14 @@ public class MainActivity extends ActionBarActivity {
 
             case R.id.email_selfie:
                 File attachment = new File(selfieItem.getPhotoPath());
-                 try {
-                     // try gmail if it's here
-                     Intent intent = new Intent(Intent.ACTION_SEND);
-                     intent.setType("image/jpeg");
-                     intent.putExtra(Intent.EXTRA_SUBJECT, "Want to see my selfies?");
-                     intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("content://" + JpegContentProvider.AUTHORITY + File.separator +
-                             selfieItem.getFileName()));
-                     intent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("image/jpeg");
+                intent.putExtra(Intent.EXTRA_SUBJECT, "Want to see my selfies?");
+                intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("content://" + JpegContentProvider.AUTHORITY + File.separator +
+                                selfieItem.getFileName()));
+                // intent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
 
-                     startActivity(intent);
-                } catch (ActivityNotFoundException e) {
-                    // try a non-content provider approach if there's no gmail
-                     attachment.setReadable(true, false);
-                     Intent intent = new Intent(Intent.ACTION_SEND);
-                     intent.setType("image/jpeg");
-                     intent.putExtra(Intent.EXTRA_SUBJECT, "Want to see my selfies?");
-                     intent.putExtra(Intent.EXTRA_STREAM,Uri.parse("file:/"+attachment.getAbsolutePath()));
-                     startActivity(intent);
-                 }
+                startActivity(intent);
                 //Toast.makeText(mContext,"email item "+mSelfieAdapter.getContextPos(),Toast.LENGTH_LONG).show();
                 break;
 
