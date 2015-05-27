@@ -199,10 +199,8 @@ public class MainActivity extends ActionBarActivity {
                 intent.putExtra(Intent.EXTRA_SUBJECT, "Want to see my selfies?");
                 intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("content://" + JpegContentProvider.AUTHORITY + File.separator +
                                 selfieItem.getFileName()));
-                // intent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
-
                 startActivity(intent);
-                //Toast.makeText(mContext,"email item "+mSelfieAdapter.getContextPos(),Toast.LENGTH_LONG).show();
+
                 break;
 
             case R.id.reset_self_name:
@@ -295,6 +293,7 @@ public class MainActivity extends ActionBarActivity {
         if (mSelfieAdapter.getCount()==0) {
             // find the directory name
             File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            if (storageDir==null) return;                               // give up if storage not available
             String storageDirAbsolutePath = storageDir.getAbsolutePath();
             File[] files = new File(storageDirAbsolutePath).listFiles();
 

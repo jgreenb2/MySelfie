@@ -129,10 +129,8 @@ public class JpegContentProvider extends ContentProvider {
                 if (file.exists()) {
                     cursor = new MatrixCursor(new String[] {
                             OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE });
-                    cursor.addRow(new Object[] { uri.getLastPathSegment(),
-                            file.length() });
+                    cursor.addRow(new Object[] { uri.getLastPathSegment(), file.length() });
                 }
-
                 return cursor;
             default:
                 return null;
