@@ -12,6 +12,7 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -197,8 +198,12 @@ public class MainActivity extends ActionBarActivity {
                 Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.setType("image/jpeg");
                 intent.putExtra(Intent.EXTRA_SUBJECT, "Want to see my selfies?");
-                intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("content://" + JpegContentProvider.AUTHORITY + File.separator +
-                                selfieItem.getFileName()));
+//                intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("content://" + JpegContentProvider.AUTHORITY + File.separator +
+//                                selfieItem.getFileName()));
+                FileProvider fileProvider = new FileProvider();
+                Uri fileUri = fileProvider.getUriForFile(mContext, "com.jgreenb2.selfieattach.provider", attachment);
+                intent.putExtra(Intent.EXTRA_STREAM, fileUri);
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 startActivity(intent);
 
                 break;
