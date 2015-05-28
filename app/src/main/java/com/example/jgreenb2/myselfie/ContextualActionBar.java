@@ -120,12 +120,10 @@ public class ContextualActionBar  {
                         mDialog.show(activity.getFragmentManager(), "confirmDeleteDialog");
                         return true;
                     case R.id.cab_send:
-                        ArrayList<String> attachments = mSelfieAdapter.getSelectedPaths();
+                        ArrayList<String> attachments = mSelfieAdapter.getSelectedFileNames();
                         ArrayList<Uri> uris= new ArrayList<Uri>();
                         for (String s : attachments) {
-                            uris.add(Uri.parse("file:/" + s));
-                            File file = new File(s);
-                            file.setReadable(true, false);
+                            uris.add(Uri.parse("content://" + JpegContentProvider.AUTHORITY + File.separator + s));
                         }
                         Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
                         intent.setType("image/jpeg");

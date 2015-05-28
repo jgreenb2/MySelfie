@@ -238,6 +238,15 @@ public class SelfieListAdapter extends BaseAdapter {
         return paths;
     }
 
+    public ArrayList<String> getSelectedFileNames() {
+        ArrayList<String> fileNames =  new ArrayList<>();
+        for (int i=0;i<getCount();i++) {
+            SelfieItem selfieItem = (SelfieItem) getItem(i);
+            if (selfieItem.isChecked()) fileNames.add(selfieItem.getFileName());
+        }
+        return fileNames;
+    }
+
     /* deletion methods
 
         Items can be deleted one at a time, all at once or in selected
